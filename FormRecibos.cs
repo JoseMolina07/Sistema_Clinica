@@ -55,6 +55,22 @@ namespace Sistema_Clinica
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
-        }     
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Form1 registroExistente = (Form1)Application.OpenForms["Form1"];
+
+            if (registroExistente != null)
+            {
+                registroExistente.Show();
+                registroExistente.BringToFront(); 
+            }
+            else
+            {
+                Form1 nuevoRegistro = new Form1();
+                nuevoRegistro.Show();
+            }
+        }
     }
 }

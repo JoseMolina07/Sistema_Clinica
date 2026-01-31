@@ -16,7 +16,15 @@ namespace Sistema_Clinica
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            using (SplashForm splash = new SplashForm())
+            {
+                // Esta línea es la que hace que habra el el form con la transicion
+                // y despues de que el timer termine se ejecute el form1:
+                if (splash.ShowDialog() == DialogResult.OK)
+                {
+                    Application.Run(new Form1());
+                }
+            }
         }
     }
 }

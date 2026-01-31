@@ -30,8 +30,9 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
+            this.btnAbrirRecibos = new System.Windows.Forms.Button();
             this.dgvPacientes = new System.Windows.Forms.DataGridView();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.ColFOLIO = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColNombre = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColFECHA = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -42,8 +43,7 @@
             this.ColEdad = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColSexo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColAnalisis = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.btnAbrirRecibos = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPacientes)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -52,9 +52,10 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(494, 19);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(465, 22);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(109, 13);
+            this.label1.Size = new System.Drawing.Size(148, 16);
             this.label1.TabIndex = 0;
             this.label1.Text = "CMI_LABORATORIO";
             // 
@@ -66,6 +67,25 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1019, 56);
             this.panel1.TabIndex = 1;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(100, 3);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(83, 37);
+            this.button1.TabIndex = 1;
+            this.button1.Text = "btn2";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // btnAbrirRecibos
+            // 
+            this.btnAbrirRecibos.Location = new System.Drawing.Point(11, 3);
+            this.btnAbrirRecibos.Name = "btnAbrirRecibos";
+            this.btnAbrirRecibos.Size = new System.Drawing.Size(83, 37);
+            this.btnAbrirRecibos.TabIndex = 0;
+            this.btnAbrirRecibos.Text = "Recibos";
+            this.btnAbrirRecibos.UseVisualStyleBackColor = true;
+            this.btnAbrirRecibos.Click += new System.EventHandler(this.btnAbrirRecibos_Click);
             // 
             // dgvPacientes
             // 
@@ -90,16 +110,6 @@
             this.dgvPacientes.TabIndex = 0;
             this.dgvPacientes.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvPacientes_CellClick);
             this.dgvPacientes.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvPacientes_CellContentClick);
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.dgvPacientes);
-            this.groupBox1.Location = new System.Drawing.Point(1, 48);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1031, 455);
-            this.groupBox1.TabIndex = 2;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Lista de Pacientes";
             // 
             // ColFOLIO
             // 
@@ -151,24 +161,15 @@
             this.ColAnalisis.HeaderText = "ANALISIS SOLICITADOS";
             this.ColAnalisis.Name = "ColAnalisis";
             // 
-            // btnAbrirRecibos
+            // groupBox1
             // 
-            this.btnAbrirRecibos.Location = new System.Drawing.Point(11, 3);
-            this.btnAbrirRecibos.Name = "btnAbrirRecibos";
-            this.btnAbrirRecibos.Size = new System.Drawing.Size(83, 37);
-            this.btnAbrirRecibos.TabIndex = 0;
-            this.btnAbrirRecibos.Text = "Recibos";
-            this.btnAbrirRecibos.UseVisualStyleBackColor = true;
-            this.btnAbrirRecibos.Click += new System.EventHandler(this.btnAbrirRecibos_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(100, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(83, 37);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "btn2";
-            this.button1.UseVisualStyleBackColor = true;
+            this.groupBox1.Controls.Add(this.dgvPacientes);
+            this.groupBox1.Location = new System.Drawing.Point(1, 48);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(1031, 455);
+            this.groupBox1.TabIndex = 2;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Lista de Pacientes";
             // 
             // Form1
             // 
@@ -179,7 +180,6 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
             this.Name = "Form1";
-            this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvPacientes)).EndInit();

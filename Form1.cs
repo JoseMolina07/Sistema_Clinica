@@ -82,8 +82,17 @@ namespace Sistema_Clinica
 
         private void btnAbrirRecibos_Click(object sender, EventArgs e)
         {
-            FormRecibos ventanaRecibos = new FormRecibos();
-            ventanaRecibos.Show();
+            FormRecibos registroExistente = (FormRecibos)Application.OpenForms["FormRecibos"];
+            if (registroExistente != null)
+            {
+                registroExistente.Show();
+                registroExistente.BringToFront();
+            }
+            else
+            {
+                FormRecibos nuevoRecibo = new FormRecibos();
+                nuevoRecibo.Show();
+            }
         }
     }
 }
