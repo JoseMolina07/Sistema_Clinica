@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
@@ -44,6 +45,9 @@
             this.ColSexo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColAnalisis = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.btnEtiqueta = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPacientes)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -51,16 +55,21 @@
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(465, 22);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(148, 16);
             this.label1.TabIndex = 0;
             this.label1.Text = "CMI_LABORATORIO";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panel1
             // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.btnEtiqueta);
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.btnAbrirRecibos);
             this.panel1.Location = new System.Drawing.Point(1, 519);
@@ -70,7 +79,8 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(100, 3);
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button1.Location = new System.Drawing.Point(10, 3);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(83, 37);
             this.button1.TabIndex = 1;
@@ -79,7 +89,8 @@
             // 
             // btnAbrirRecibos
             // 
-            this.btnAbrirRecibos.Location = new System.Drawing.Point(11, 3);
+            this.btnAbrirRecibos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnAbrirRecibos.Location = new System.Drawing.Point(99, 3);
             this.btnAbrirRecibos.Name = "btnAbrirRecibos";
             this.btnAbrirRecibos.Size = new System.Drawing.Size(83, 37);
             this.btnAbrirRecibos.TabIndex = 0;
@@ -89,6 +100,9 @@
             // 
             // dgvPacientes
             // 
+            this.dgvPacientes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvPacientes.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvPacientes.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvPacientes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -103,10 +117,10 @@
             this.ColEdad,
             this.ColSexo,
             this.ColAnalisis});
-            this.dgvPacientes.Location = new System.Drawing.Point(10, 12);
+            this.dgvPacientes.Location = new System.Drawing.Point(10, 49);
             this.dgvPacientes.Name = "dgvPacientes";
             this.dgvPacientes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvPacientes.Size = new System.Drawing.Size(999, 437);
+            this.dgvPacientes.Size = new System.Drawing.Size(999, 400);
             this.dgvPacientes.TabIndex = 0;
             this.dgvPacientes.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvPacientes_CellClick);
             this.dgvPacientes.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvPacientes_CellContentClick);
@@ -163,29 +177,66 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.textBox1);
+            this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.dgvPacientes);
             this.groupBox1.Location = new System.Drawing.Point(1, 48);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(1031, 455);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Lista de Pacientes";
+            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(726, 16);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(117, 15);
+            this.label2.TabIndex = 1;
+            this.label2.Text = "Buscar Paciente: 🔎";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox1.Location = new System.Drawing.Point(858, 13);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(151, 20);
+            this.textBox1.TabIndex = 2;
+            // 
+            // btnEtiqueta
+            // 
+            this.btnEtiqueta.Location = new System.Drawing.Point(188, 3);
+            this.btnEtiqueta.Name = "btnEtiqueta";
+            this.btnEtiqueta.Size = new System.Drawing.Size(79, 37);
+            this.btnEtiqueta.TabIndex = 2;
+            this.btnEtiqueta.Text = "Etiquetado";
+            this.btnEtiqueta.UseVisualStyleBackColor = true;
+            this.btnEtiqueta.Click += new System.EventHandler(this.button2_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
             this.ClientSize = new System.Drawing.Size(1032, 571);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
+            this.Text = "Registro de Pacientes";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvPacientes)).EndInit();
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -207,6 +258,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ColAnalisis;
         private System.Windows.Forms.Button btnAbrirRecibos;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button btnEtiqueta;
     }
 }
 

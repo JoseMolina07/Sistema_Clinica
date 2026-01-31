@@ -60,7 +60,14 @@ namespace Sistema_Clinica
 
                 if (resultado == DialogResult.Yes)
                 {
-                    dgvPacientes.Rows.RemoveAt(e.RowIndex);
+                    try
+                    {
+                        dgvPacientes.Rows.RemoveAt(e.RowIndex);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("No se puede eliminar la primera fila");         
+                    }
                 }
             }
         }
@@ -93,6 +100,27 @@ namespace Sistema_Clinica
                 FormRecibos nuevoRecibo = new FormRecibos();
                 nuevoRecibo.Show();
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //btnEtiqueta por si no jala se usa button2
+            FormEtiquetas registroExistente = (FormEtiquetas)Application.OpenForms["FormEtiquetas"];
+            if (registroExistente != null)
+            {
+                registroExistente.Show();
+                registroExistente.BringToFront();
+            }
+            else
+            {
+                FormEtiquetas nuevoRecibo = new FormEtiquetas();
+                nuevoRecibo.Show();
+            }
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
         }
     }
 }
