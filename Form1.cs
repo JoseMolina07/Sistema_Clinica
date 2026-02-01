@@ -15,34 +15,30 @@ namespace Sistema_Clinica
         public Form1()
         {
             InitializeComponent();
+            this.DoubleBuffered = true;
         }
 
         private void EstilizarTabla()
         {
-            //Aqui le doy estilo a los encabezados y filas de la tabla, doy estilo y tamaño a las letras,
-            //tambien se agrega las flechitas tipo excel para el filtro
+            // Aqui le doy estilo a los encabezados y filas de la tabla, doy estilo y tamaño a las letras,
+            // tambien se agrega las flechitas tipo excel para el filtro
             dgvPacientes.EnableHeadersVisualStyles = false;
             dgvPacientes.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(68, 114, 196);
             dgvPacientes.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvPacientes.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            dgvPacientes.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 7, FontStyle.Bold);
             dgvPacientes.ColumnHeadersHeight = 35;
             dgvPacientes.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
 
-            
             dgvPacientes.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(217, 225, 242);
             dgvPacientes.RowsDefaultCellStyle.BackColor = Color.White;
 
-            
-            dgvPacientes.RowHeadersVisible = false; 
-            dgvPacientes.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            dgvPacientes.GridColor = Color.FromArgb(210, 210, 210); 
+            dgvPacientes.CellBorderStyle = DataGridViewCellBorderStyle.Single; // Esto activa todas las líneas (celosía completa)
 
-           
+
             dgvPacientes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-           
             dgvPacientes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvPacientes.MultiSelect = false; 
+            dgvPacientes.MultiSelect = false;
         }
 
         private void dgvPacientes_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -66,7 +62,7 @@ namespace Sistema_Clinica
                     }
                     catch (Exception)
                     {
-                        MessageBox.Show("No se puede eliminar la primera fila");         
+                        MessageBox.Show("No se puede eliminar la primera fila");
                     }
                 }
             }
@@ -74,17 +70,23 @@ namespace Sistema_Clinica
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            dgvPacientes.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            // Hace que la fila crezca automáticamente según el contenido
+            dgvPacientes.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
+            // Alinea el texto arriba a la izquierda para que se vea ordenado al crecer la fila
+            dgvPacientes.DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopLeft;
+            EstilizarTabla();
         }
 
         private void dgvPacientes_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-           
+            // Evento vacío
         }
 
         private void FormRecibos_Click(object sender, EventArgs e)
         {
-
+            // Evento vacío
         }
 
         private void btnAbrirRecibos_Click(object sender, EventArgs e)
@@ -104,7 +106,7 @@ namespace Sistema_Clinica
 
         private void button2_Click(object sender, EventArgs e)
         {
-            //btnEtiqueta por si no jala se usa button2
+            // btnEtiqueta por si no jala se usa button2
             FormEtiquetas registroExistente = (FormEtiquetas)Application.OpenForms["FormEtiquetas"];
             if (registroExistente != null)
             {
@@ -120,7 +122,35 @@ namespace Sistema_Clinica
 
         private void groupBox1_Enter(object sender, EventArgs e)
         {
+        
+        }
 
+        private void dgvPacientes_CellClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+            // Detecta clic en el asterisco (columna -1) para eliminar
+            if (e.ColumnIndex == -1 && e.RowIndex >= 0)
+            {
+                // Obtenemos el nombre del paciente (asumiendo que está en la celda índice 1)
+                string nombrePaciente = dgvPacientes.Rows[e.RowIndex].Cells[1].Value?.ToString();
+
+                DialogResult resultado = MessageBox.Show(
+                    $"¿Estás seguro de que deseas eliminar toda la fila?",
+                    "Confirmar eliminación",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (resultado == DialogResult.Yes)
+                {
+                    try
+                    {
+                        dgvPacientes.Rows.RemoveAt(e.RowIndex);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("No se puede eliminar esta fila.");
+                    }
+                }
+            }
         }
     }
 }
