@@ -96,6 +96,12 @@
     <Compile Include="FormEtiquetas.Designer.cs">
       <DependentUpon>FormEtiquetas.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormMedicos.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormMedicos.Designer.cs">
+      <DependentUpon>FormMedicos.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormRecibos.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -115,6 +121,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormEtiquetas.resx">
       <DependentUpon>FormEtiquetas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormMedicos.resx">
+      <DependentUpon>FormMedicos.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormRecibos.resx">
       <DependentUpon>FormRecibos.cs</DependentUpon>

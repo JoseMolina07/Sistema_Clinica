@@ -16,29 +16,37 @@ namespace Sistema_Clinica
         {
             InitializeComponent();
             this.DoubleBuffered = true;
+            dgvPacientes.DataBindingComplete += dgvPacientes_DataBindingComplete;
         }
 
         private void EstilizarTabla()
         {
             // Aqui le doy estilo a los encabezados y filas de la tabla, doy estilo y tamaño a las letras,
-            // tambien se agrega las flechitas tipo excel para el filtro
-            dgvPacientes.EnableHeadersVisualStyles = false;
-            dgvPacientes.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(68, 114, 196);
-            dgvPacientes.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvPacientes.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 7, FontStyle.Bold);
-            dgvPacientes.ColumnHeadersHeight = 35;
-            dgvPacientes.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            dgvPacientes.RowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(0, 102, 204);
+            dgvPacientes.RowsDefaultCellStyle.SelectionForeColor = Color.White;
 
-            dgvPacientes.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(217, 225, 242);
-            dgvPacientes.RowsDefaultCellStyle.BackColor = Color.White;
+            dgvPacientes.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 204, 0);
+            dgvPacientes.DefaultCellStyle.SelectionForeColor = Color.Black;
 
-            dgvPacientes.CellBorderStyle = DataGridViewCellBorderStyle.Single; // Esto activa todas las líneas (celosía completa)
+            dgvPacientes.CurrentCell = null;
 
+            dgvPacientes.CellEnter += (s, e) =>
+            {
+                dgvPacientes[e.ColumnIndex, e.RowIndex].Style.BackColor = Color.FromArgb(255, 204, 0);
+            };
+
+            dgvPacientes.CellLeave += (s, e) =>
+            {
+                dgvPacientes[e.ColumnIndex, e.RowIndex].Style.BackColor = dgvPacientes.RowsDefaultCellStyle.BackColor;
+            };
+
+            dgvPacientes.CellBorderStyle = DataGridViewCellBorderStyle.Single;
 
             dgvPacientes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-            dgvPacientes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvPacientes.SelectionMode = DataGridViewSelectionMode.CellSelect;
             dgvPacientes.MultiSelect = false;
+
         }
 
         private void dgvPacientes_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -70,23 +78,25 @@ namespace Sistema_Clinica
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            dgvPacientes.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            // Hace que la fila crezca automáticamente según el contenido
-            dgvPacientes.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-
-            // Alinea el texto arriba a la izquierda para que se vea ordenado al crecer la fila
-            dgvPacientes.DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopLeft;
             EstilizarTabla();
+
+            dgvPacientes.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dgvPacientes.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            dgvPacientes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+
+            dgvPacientes.RowTemplate.MinimumHeight = 22;
+            dgvPacientes.RowTemplate.Height = 22;
+
         }
 
         private void dgvPacientes_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Evento vacío
+            
         }
 
         private void FormRecibos_Click(object sender, EventArgs e)
         {
-            // Evento vacío
+            
         }
 
         private void btnAbrirRecibos_Click(object sender, EventArgs e)
@@ -150,6 +160,85 @@ namespace Sistema_Clinica
                         MessageBox.Show("No se puede eliminar esta fila.");
                     }
                 }
+            }
+        }
+
+        private void dgvPacientes_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            dgvPacientes.AutoResizeRows();
+        }
+
+        private void dgvPacientes_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            dgvPacientes.AutoResizeRows();
+        }
+
+        private void dgvPacientes_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            if (dgvPacientes.Columns.Count == 0)
+                return; // por seguridad
+
+            // ======== CONFIGURACIÓN GENERAL DE COLUMNAS ========
+            foreach (DataGridViewColumn col in dgvPacientes.Columns)
+            {
+                col.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            }
+
+            // ======== ANCHOS (USANDO LOS NOMBRES REALES DE DISEÑO) ========
+            SetColumnWidth("ColFolio", 90);
+            SetColumnWidth("ColNombre", 200);
+            SetColumnWidth("ColObservaciones", 230);
+
+            // ======== AJUSTE FINAL DE FILAS ========
+            dgvPacientes.AutoResizeRows();
+
+        }
+
+        private void SetColumnWidth(string columnName, int width)
+        {
+            if (dgvPacientes.Columns.Contains(columnName))
+                dgvPacientes.Columns[columnName].Width = width;
+        }
+
+
+        private void dgvPacientes_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            if (e.Control is TextBox txt)
+            {
+                txt.Multiline = true;
+                txt.AcceptsReturn = true;
+                txt.AcceptsTab = true;
+                txt.ScrollBars = ScrollBars.None;
+
+                txt.TextChanged -= Txt_TextChanged;
+                txt.TextChanged += Txt_TextChanged;
+            }
+        }
+
+        private async void Txt_TextChanged(object sender, EventArgs e)
+        {
+            await Task.Delay(10); //esto me evita el bug de la celda que se pone negra
+
+            if (dgvPacientes.CurrentCell != null)
+            {
+                int fila = dgvPacientes.CurrentCell.RowIndex;
+                dgvPacientes.AutoResizeRow(fila, DataGridViewAutoSizeRowMode.AllCells);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            FormMedicos registroExistente = (FormMedicos)Application.OpenForms["FormMedicos"];
+            if (registroExistente != null)
+            {
+                registroExistente.Show();
+                registroExistente.BringToFront();
+            }
+            else
+            {
+                FormMedicos nuevoRecibo = new FormMedicos();
+                nuevoRecibo.Show();
             }
         }
     }
