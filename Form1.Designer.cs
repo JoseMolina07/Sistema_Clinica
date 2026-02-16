@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.btnEtiqueta = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.btnAbrirRecibos = new System.Windows.Forms.Button();
@@ -74,18 +74,19 @@
             this.txtAnalisis = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
-            this.ColAnalisis = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColTelefono = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColSucursal = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColSexo = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColEdad = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colCORREO = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColMEDICO = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColFECHA = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColNombre = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColFOLIO = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvPacientes = new System.Windows.Forms.DataGridView();
             this.btnActualizar = new System.Windows.Forms.Button();
+            this.ColFOLIO = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColNombre = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColFECHA = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColMEDICO = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colCORREO = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColEdad = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColSexo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColSucursal = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColTelefono = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColAnalisis = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColCosto = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox7)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
@@ -567,56 +568,6 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click_2);
             // 
-            // ColAnalisis
-            // 
-            this.ColAnalisis.HeaderText = "ANALISIS SOLICITADOS";
-            this.ColAnalisis.Name = "ColAnalisis";
-            // 
-            // ColTelefono
-            // 
-            this.ColTelefono.HeaderText = "TELEFONO";
-            this.ColTelefono.Name = "ColTelefono";
-            // 
-            // ColSucursal
-            // 
-            this.ColSucursal.HeaderText = "SUCURSAL";
-            this.ColSucursal.Name = "ColSucursal";
-            // 
-            // ColSexo
-            // 
-            this.ColSexo.HeaderText = "SEXO";
-            this.ColSexo.Name = "ColSexo";
-            // 
-            // ColEdad
-            // 
-            this.ColEdad.HeaderText = "EDAD";
-            this.ColEdad.Name = "ColEdad";
-            // 
-            // colCORREO
-            // 
-            this.colCORREO.HeaderText = "CORREO";
-            this.colCORREO.Name = "colCORREO";
-            // 
-            // ColMEDICO
-            // 
-            this.ColMEDICO.HeaderText = "MEDICO";
-            this.ColMEDICO.Name = "ColMEDICO";
-            // 
-            // ColFECHA
-            // 
-            this.ColFECHA.HeaderText = "FECHA";
-            this.ColFECHA.Name = "ColFECHA";
-            // 
-            // ColNombre
-            // 
-            this.ColNombre.HeaderText = "NOMBRE";
-            this.ColNombre.Name = "ColNombre";
-            // 
-            // ColFOLIO
-            // 
-            this.ColFOLIO.HeaderText = "FOLIO";
-            this.ColFOLIO.Name = "ColFOLIO";
-            // 
             // dgvPacientes
             // 
             this.dgvPacientes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -636,15 +587,16 @@
             this.ColSexo,
             this.ColSucursal,
             this.ColTelefono,
-            this.ColAnalisis});
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvPacientes.DefaultCellStyle = dataGridViewCellStyle1;
+            this.ColAnalisis,
+            this.ColCosto});
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvPacientes.DefaultCellStyle = dataGridViewCellStyle2;
             this.dgvPacientes.Location = new System.Drawing.Point(133, 375);
             this.dgvPacientes.Name = "dgvPacientes";
             this.dgvPacientes.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
@@ -664,6 +616,61 @@
             this.btnActualizar.Text = "Actualizar";
             this.btnActualizar.UseVisualStyleBackColor = true;
             this.btnActualizar.Click += new System.EventHandler(this.btnActualizar_Click);
+            // 
+            // ColFOLIO
+            // 
+            this.ColFOLIO.HeaderText = "FOLIO";
+            this.ColFOLIO.Name = "ColFOLIO";
+            // 
+            // ColNombre
+            // 
+            this.ColNombre.HeaderText = "NOMBRE";
+            this.ColNombre.Name = "ColNombre";
+            // 
+            // ColFECHA
+            // 
+            this.ColFECHA.HeaderText = "FECHA";
+            this.ColFECHA.Name = "ColFECHA";
+            // 
+            // ColMEDICO
+            // 
+            this.ColMEDICO.HeaderText = "MEDICO";
+            this.ColMEDICO.Name = "ColMEDICO";
+            // 
+            // colCORREO
+            // 
+            this.colCORREO.HeaderText = "CORREO";
+            this.colCORREO.Name = "colCORREO";
+            // 
+            // ColEdad
+            // 
+            this.ColEdad.HeaderText = "EDAD";
+            this.ColEdad.Name = "ColEdad";
+            // 
+            // ColSexo
+            // 
+            this.ColSexo.HeaderText = "SEXO";
+            this.ColSexo.Name = "ColSexo";
+            // 
+            // ColSucursal
+            // 
+            this.ColSucursal.HeaderText = "SUCURSAL";
+            this.ColSucursal.Name = "ColSucursal";
+            // 
+            // ColTelefono
+            // 
+            this.ColTelefono.HeaderText = "TELEFONO";
+            this.ColTelefono.Name = "ColTelefono";
+            // 
+            // ColAnalisis
+            // 
+            this.ColAnalisis.HeaderText = "ANALISIS SOLICITADOS";
+            this.ColAnalisis.Name = "ColAnalisis";
+            // 
+            // ColCosto
+            // 
+            this.ColCosto.HeaderText = "COSTO";
+            this.ColCosto.Name = "ColCosto";
             // 
             // Form1
             // 
@@ -740,18 +747,19 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.ComboBox txtsucursal;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColAnalisis;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColTelefono;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColSucursal;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColSexo;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColEdad;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colCORREO;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColMEDICO;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColFECHA;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColNombre;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColFOLIO;
         private System.Windows.Forms.DataGridView dgvPacientes;
         private System.Windows.Forms.Button btnActualizar;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColFOLIO;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColNombre;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColFECHA;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColMEDICO;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colCORREO;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColEdad;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColSexo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColSucursal;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColTelefono;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColAnalisis;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColCosto;
     }
 }
 

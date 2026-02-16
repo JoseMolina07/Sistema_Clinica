@@ -207,25 +207,34 @@ namespace Sistema_Clinica
                 foreach (DataRow row in dt.Rows)
                 {
                     int n = dgvPacientes.Rows.Add();
-
-                    // ASIGNACIÓN DIRECTA POR NOMBRE DE COLUMNA (NAME)
                     dgvPacientes.Rows[n].Cells["ColFOLIO"].Value = row["folio_curp"].ToString();
                     dgvPacientes.Rows[n].Cells["ColNombre"].Value = row["nombre"].ToString();
                     dgvPacientes.Rows[n].Cells["ColEdad"].Value = row["edad"].ToString();
                     dgvPacientes.Rows[n].Cells["ColSexo"].Value = row["sexo"].ToString();
-                    dgvPacientes.Rows[n].Cells["colCORREO"].Value = row["correo"].ToString();
                     dgvPacientes.Rows[n].Cells["ColTelefono"].Value = row["telefono"].ToString();
+                    dgvPacientes.Rows[n].Cells["colCORREO"].Value = row["correo"].ToString();
+                    dgvPacientes.Rows[n].Cells["ColFecha"].Value = row["fecha"]?.ToString();
+                    dgvPacientes.Rows[n].Cells["ColMEDICO"].Value = row["medico"]?.ToString();
+                    dgvPacientes.Rows[n].Cells["ColCosto"].Value = row["costo"]?.ToString() ?? "$0.00";
+                    dgvPacientes.Rows[n].Cells["ColSucursal"].Value = row["sucursal"]?.ToString();
 
-                    // AQUÍ ESTABA EL FALLO: Estas son las columnas que "desaparecían"
-                    dgvPacientes.Rows[n].Cells["ColFecha"].Value = row["fecha"]?.ToString() ?? "";
-                    dgvPacientes.Rows[n].Cells["ColMEDICO"].Value = row["medico"]?.ToString() ?? "";
-                    dgvPacientes.Rows[n].Cells["ColSucursal"].Value = row["sucursal"]?.ToString() ?? "";
-                    dgvPacientes.Rows[n].Cells["ColAnalisis"].Value = row["analisis_clinicos"]?.ToString() ?? "";
+                    // LIMPIAMOS EL TEXTO PARA EL GRID (Quitamos los precios)
+                    string analisisSucio = row["analisis_clinicos"]?.ToString() ?? "";
+                    string analisisLimpio = "";
+                    if (!string.IsNullOrEmpty(analisisSucio))
+                    {
+                        string[] lineas = analisisSucio.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string l in lineas)
+                        {
+                            analisisLimpio += l.Split('|')[0] + Environment.NewLine;
+                        }
+                    }
+                    dgvPacientes.Rows[n].Cells["ColAnalisis"].Value = analisisLimpio;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al mostrar datos: " + ex.Message);
+                MessageBox.Show("Error al refrescar: " + ex.Message);
             }
             finally
             {
@@ -242,30 +251,29 @@ namespace Sistema_Clinica
                                "VALUES (@fol, @nom, @eda, @sex, @tel, @cor, @fec, @med, @cos, @suc, @ana)";
 
                 MySqlCommand cmd = new MySqlCommand(query, objetoConexion.establecerconexion());
-                cmd.Parameters.AddWithValue("@fol", txtFolio.Text);
+                cmd.Parameters.AddWithValue("@fol", txtFolio.Text.Trim());
                 cmd.Parameters.AddWithValue("@nom", txtNombre.Text);
-                cmd.Parameters.AddWithValue("@eda", numEdad.Value.ToString());
+                cmd.Parameters.AddWithValue("@eda", numEdad.Value);
                 cmd.Parameters.AddWithValue("@sex", cmbSexo.Text);
-                cmd.Parameters.AddWithValue("@tel", txtTelefono.Text);
+                cmd.Parameters.AddWithValue("@tel", txtTelefono.Text); // ¡IMPORTANTE!
                 cmd.Parameters.AddWithValue("@cor", txtCorreo.Text);
                 cmd.Parameters.AddWithValue("@fec", dtpFecha.Text);
                 cmd.Parameters.AddWithValue("@med", txtMedico.Text);
-                cmd.Parameters.AddWithValue("@cos", label15.Text);
+                cmd.Parameters.AddWithValue("@cos", label15.Text); // ¡IMPORTANTE!
                 cmd.Parameters.AddWithValue("@suc", txtsucursal.Text);
-                cmd.Parameters.AddWithValue("@ana", estudios); // Aquí se guardan los análisis
+                cmd.Parameters.AddWithValue("@ana", estudios);
 
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al guardar: " + ex.Message);
+                MessageBox.Show("Error al guardar en BD: " + ex.Message);
             }
             finally
             {
                 objetoConexion.cerrarconexion();
             }
         }
-
 
         public void CargarCategorias()
         {
@@ -617,40 +625,52 @@ namespace Sistema_Clinica
                 MessageBox.Show("Por favor, ingresa el Folio.");
                 return;
             }
-            if (ExisteFolio(txtFolio.Text))
-            {
-                MessageBox.Show("¡ERROR! Este folio ya existe en la base de datos.", "Integridad");
-                return; // Aquí se detiene y no guarda nada duplicado
-            }
 
-            // BLOQUEO DE DUPLICADOS
             if (ExisteFolio(txtFolio.Text))
             {
-                MessageBox.Show("El Folio ya existe. No se puede duplicar el registro.", "Error de Integridad");
+                MessageBox.Show("¡ERROR! Este folio ya existe.", "Integridad");
                 return;
             }
 
-            string analisisJuntos = "";
+            // 1. Preparamos el texto para la base de datos (con el separador |)
+            string analisisParaBD = "";
+            // 2. Preparamos el texto para la pantalla (Limpio, sin el |)
+            string analisisParaPantalla = "";
+
             foreach (DataRow r in tablaOrden.Rows)
             {
-                analisisJuntos += r["Análisis"].ToString() + Environment.NewLine;
+                analisisParaBD += r["Análisis"].ToString() + "|" + r["Precio Base"].ToString() + Environment.NewLine;
+                analisisParaPantalla += r["Análisis"].ToString() + Environment.NewLine;
             }
 
-            int n = dgvPacientes.Rows.Add();
-            dgvPacientes.Rows[n].Cells[0].Value = txtFolio.Text;
-            dgvPacientes.Rows[n].Cells[1].Value = txtNombre.Text;
-            dgvPacientes.Rows[n].Cells[2].Value = dtpFecha.Text;
-            dgvPacientes.Rows[n].Cells[3].Value = txtMedico.Text;
-            dgvPacientes.Rows[n].Cells[4].Value = txtCorreo.Text;
-            dgvPacientes.Rows[n].Cells[5].Value = label15.Text;
-            dgvPacientes.Rows[n].Cells[6].Value = txtsucursal.Text;
-            dgvPacientes.Rows[n].Cells[7].Value = numEdad.Value;
-            dgvPacientes.Rows[n].Cells[8].Value = cmbSexo.Text;
-            dgvPacientes.Rows[n].Cells[9].Value = analisisJuntos;
+            try
+            {
+                // Guardamos en MySQL con el formato completo
+                GuardarEnBaseDeDatos(analisisParaBD);
 
-            GuardarEnBaseDeDatos(analisisJuntos);
-            LimpiarCampos();
-            tablaOrden.Clear();
+                // Llenamos el Grid manualmente con el texto LIMPIO
+                int n = dgvPacientes.Rows.Add();
+                dgvPacientes.Rows[n].Cells["ColFOLIO"].Value = txtFolio.Text;
+                dgvPacientes.Rows[n].Cells["ColNombre"].Value = txtNombre.Text;
+                dgvPacientes.Rows[n].Cells["ColEdad"].Value = numEdad.Value;
+                dgvPacientes.Rows[n].Cells["ColSexo"].Value = cmbSexo.Text;
+                dgvPacientes.Rows[n].Cells["ColTelefono"].Value = txtTelefono.Text;
+                dgvPacientes.Rows[n].Cells["colCORREO"].Value = txtCorreo.Text;
+                dgvPacientes.Rows[n].Cells["ColFecha"].Value = dtpFecha.Text;
+                dgvPacientes.Rows[n].Cells["ColMEDICO"].Value = txtMedico.Text;
+                dgvPacientes.Rows[n].Cells["ColCosto"].Value = label15.Text;
+                dgvPacientes.Rows[n].Cells["ColAnalisis"].Value = analisisParaPantalla; // TEXTO LIMPIO
+                dgvPacientes.Rows[n].Cells["ColSucursal"].Value = txtsucursal.Text;
+
+                MessageBox.Show("Guardado con éxito.");
+                LimpiarCampos();
+                tablaOrden.Clear();
+                CalcularTotalOrden();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al ingresar: " + ex.Message);
+            }
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -819,34 +839,60 @@ namespace Sistema_Clinica
 
         private void dgvPacientes_CellDoubleClick_1(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
+            // Ignorar encabezados y filas vacías (Elimina el error de Fila 1)
+            if (e.RowIndex < 0 || dgvPacientes.CurrentRow == null) return;
+
+            try
             {
                 DataGridViewRow fila = dgvPacientes.Rows[e.RowIndex];
 
-                // Pasamos del Grid a los TextBoxes
-                txtFolio.Text = fila.Cells["ColFOLIO"].Value?.ToString();
-                txtNombre.Text = fila.Cells["ColNombre"].Value?.ToString();
-                dtpFecha.Text = fila.Cells["ColFecha"].Value?.ToString();
-                txtMedico.Text = fila.Cells["ColMEDICO"].Value?.ToString();
-                txtsucursal.Text = fila.Cells["ColSucursal"].Value?.ToString();
-                txtCorreo.Text = fila.Cells["colCORREO"].Value?.ToString();
-                txtTelefono.Text = fila.Cells["ColTelefono"].Value?.ToString();
-                cmbSexo.Text = fila.Cells["ColSexo"].Value?.ToString();
+                // Regresar datos básicos
+                txtFolio.Text = fila.Cells["ColFOLIO"].Value?.ToString() ?? "";
+                txtNombre.Text = fila.Cells["ColNombre"].Value?.ToString() ?? "";
+                txtTelefono.Text = fila.Cells["ColTelefono"].Value?.ToString() ?? "";
+                txtCorreo.Text = fila.Cells["colCORREO"].Value?.ToString() ?? "";
+                txtMedico.Text = fila.Cells["ColMEDICO"].Value?.ToString() ?? "";
+                txtsucursal.Text = fila.Cells["ColSucursal"].Value?.ToString() ?? "";
+                dtpFecha.Text = fila.Cells["ColFecha"].Value?.ToString() ?? DateTime.Now.ToShortDateString();
+                cmbSexo.Text = fila.Cells["ColSexo"].Value?.ToString() ?? "";
 
-                // Manejo de la Edad para que no truene si es nulo
-                decimal edadD;
-                if (decimal.TryParse(fila.Cells["ColEdad"].Value?.ToString(), out edadD)) numEdad.Value = edadD;
+                decimal edadVal;
+                if (decimal.TryParse(fila.Cells["ColEdad"].Value?.ToString(), out edadVal))
+                    numEdad.Value = edadVal;
 
-                // Regresamos los estudios al carrito (dataGridView2)
+                // RECUPERAR PRECIOS AL CARRITO (Desde la BD, no desde el Grid)
                 tablaOrden.Rows.Clear();
-                string estudios = fila.Cells["ColAnalisis"].Value?.ToString();
-                if (!string.IsNullOrEmpty(estudios))
+
+                // Vamos a traer el dato real de la base de datos para no confiar en lo que se ve en el Grid
+                CConexion objetoConexion = new CConexion();
+                string query = "SELECT analisis_clinicos, costo FROM pacientes WHERE folio_curp = @fol";
+                MySqlCommand cmd = new MySqlCommand(query, objetoConexion.establecerconexion());
+                cmd.Parameters.AddWithValue("@fol", txtFolio.Text);
+                MySqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
                 {
-                    string[] lista = estudios.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string s in lista) { tablaOrden.Rows.Add(s, 0); }
+                    string estudiosRaw = dr["analisis_clinicos"].ToString();
+                    label15.Text = dr["costo"].ToString();
+
+                    if (!string.IsNullOrEmpty(estudiosRaw))
+                    {
+                        string[] lineas = estudiosRaw.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string l in lineas)
+                        {
+                            if (l.Contains("|"))
+                            {
+                                string[] partes = l.Split('|');
+                                tablaOrden.Rows.Add(partes[0].Trim(), partes[1].Trim());
+                            }
+                        }
+                    }
                 }
-                CalcularTotalOrden();
+                dr.Close();
+                objetoConexion.cerrarconexion();
+                txtNombre.Focus();
             }
+            catch (Exception) { /* Silencio para evitar el spam de errores */ }
         }
 
         private void btnActualizar_Click(object sender, EventArgs e)
@@ -854,14 +900,19 @@ namespace Sistema_Clinica
             CConexion objetoConexion = new CConexion();
             try
             {
-                // UPDATE no crea, solo modifica lo que ya está ahí por su folio_curp
                 string query = "UPDATE pacientes SET nombre=@nom, edad=@eda, sexo=@sex, telefono=@tel, correo=@cor, " +
-                               "fecha=@fec, medico=@med, sucursal=@suc, analisis_clinicos=@ana WHERE folio_curp=@fol";
+                               "fecha=@fec, medico=@med, sucursal=@suc, analisis_clinicos=@ana, costo=@cos WHERE folio_curp=@fol";
 
                 MySqlCommand cmd = new MySqlCommand(query, objetoConexion.establecerconexion());
 
-                // El folio es la llave, no se cambia, se usa para buscar
-                cmd.Parameters.AddWithValue("@fol", txtFolio.Text);
+                // Juntar Análisis y Precio con '|'
+                string analisisConPrecio = "";
+                foreach (DataRow r in tablaOrden.Rows)
+                {
+                    analisisConPrecio += r["Análisis"].ToString() + "|" + r["Precio Base"].ToString() + Environment.NewLine;
+                }
+
+                cmd.Parameters.AddWithValue("@fol", txtFolio.Text.Trim());
                 cmd.Parameters.AddWithValue("@nom", txtNombre.Text);
                 cmd.Parameters.AddWithValue("@eda", numEdad.Value.ToString());
                 cmd.Parameters.AddWithValue("@sex", cmbSexo.Text);
@@ -870,23 +921,16 @@ namespace Sistema_Clinica
                 cmd.Parameters.AddWithValue("@fec", dtpFecha.Text);
                 cmd.Parameters.AddWithValue("@med", txtMedico.Text);
                 cmd.Parameters.AddWithValue("@suc", txtsucursal.Text);
-
-                // Juntamos lo que hay en el carrito (dataGridView2) ahora mismo
-                string estudiosEditados = "";
-                foreach (DataRow r in tablaOrden.Rows)
-                {
-                    estudiosEditados += r["Análisis"].ToString() + Environment.NewLine;
-                }
-                cmd.Parameters.AddWithValue("@ana", estudiosEditados);
+                cmd.Parameters.AddWithValue("@cos", label15.Text);
+                cmd.Parameters.AddWithValue("@ana", analisisConPrecio);
 
                 cmd.ExecuteNonQuery();
-                MessageBox.Show("¡Cambios guardados con éxito!");
-
-                RefrescarTablaPacientes(); // Esto actualiza la tabla principal al momento
+                MessageBox.Show("Actualizado correctamente.");
+                RefrescarTablaPacientes();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al actualizar: " + ex.Message);
+                MessageBox.Show("Error: " + ex.Message);
             }
             finally
             {
