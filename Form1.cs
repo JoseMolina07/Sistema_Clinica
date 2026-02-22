@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Globalization;
 
 namespace Sistema_Clinica
 {
@@ -59,6 +60,8 @@ namespace Sistema_Clinica
 
             // Hace que la fila ajuste su altura automáticamente según el contenido
             dgvPacientes.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+
+            dgvPacientes.Columns["ColCosto"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
 
             // Opcional: Dale un ancho fijo a la columna de análisis para que el texto salte
             if (dgvPacientes.Columns.Count > 9)
@@ -811,88 +814,133 @@ namespace Sistema_Clinica
 
         private void dgvPacientes_RowHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.RowIndex >= 0)
-            {
-                // Obtenemos el nombre de la fila para confirmar
-                string nombreP = dgvPacientes.Rows[e.RowIndex].Cells["ColNombre"].Value?.ToString() ?? "Paciente sin nombre";
-                string folio = dgvPacientes.Rows[e.RowIndex].Cells["ColFOLIO"].Value?.ToString();
-
-                DialogResult result = MessageBox.Show(
-                    $"¿Deseas ELIMINAR permanentemente a: {nombreP}?",
-                    "Confirmar Baja",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
-
-                if (result == DialogResult.Yes)
-                {
-                    // Borramos de la pantalla
-                    dgvPacientes.Rows.RemoveAt(e.RowIndex);
-
-                    // Borramos de la BD si hay un folio válido
-                    if (!string.IsNullOrEmpty(folio))
-                    {
-                        EliminarPacienteBD(folio);
-                    }
-                }
-            }
-        }
-
-        private void dgvPacientes_CellDoubleClick_1(object sender, DataGridViewCellEventArgs e)
-        {
-            // Ignorar encabezados y filas vacías (Elimina el error de Fila 1)
-            if (e.RowIndex < 0 || dgvPacientes.CurrentRow == null) return;
+            // Protección: encabezados y filas inválidas
+            if (e.RowIndex < 0) return;
 
             try
             {
                 DataGridViewRow fila = dgvPacientes.Rows[e.RowIndex];
 
-                // Regresar datos básicos
+                // Llenamos controles desde el grid (con tus nombres exactos)
                 txtFolio.Text = fila.Cells["ColFOLIO"].Value?.ToString() ?? "";
                 txtNombre.Text = fila.Cells["ColNombre"].Value?.ToString() ?? "";
                 txtTelefono.Text = fila.Cells["ColTelefono"].Value?.ToString() ?? "";
                 txtCorreo.Text = fila.Cells["colCORREO"].Value?.ToString() ?? "";
                 txtMedico.Text = fila.Cells["ColMEDICO"].Value?.ToString() ?? "";
                 txtsucursal.Text = fila.Cells["ColSucursal"].Value?.ToString() ?? "";
-                dtpFecha.Text = fila.Cells["ColFecha"].Value?.ToString() ?? DateTime.Now.ToShortDateString();
                 cmbSexo.Text = fila.Cells["ColSexo"].Value?.ToString() ?? "";
 
-                decimal edadVal;
+                // EDAD: parse seguro
+                decimal edadVal = 0;
                 if (decimal.TryParse(fila.Cells["ColEdad"].Value?.ToString(), out edadVal))
                     numEdad.Value = edadVal;
+                else
+                    numEdad.Value = 0;
 
-                // RECUPERAR PRECIOS AL CARRITO (Desde la BD, no desde el Grid)
+                // FECHA: parse seguro (evita el error "DateTime válido")
+                string fechaStr = fila.Cells["ColFECHA"].Value?.ToString();
+                DateTime fecha;
+
+                // Intenta interpretar fechas como "martes, 24 de febrero", "16/02/2026", etc.
+                if (!string.IsNullOrWhiteSpace(fechaStr) &&
+                    DateTime.TryParse(fechaStr, new CultureInfo("es-MX"), DateTimeStyles.None, out fecha))
+                {
+                    dtpFecha.Value = fecha;
+                }
+                else
+                {
+                    // Si no se puede interpretar, usa hoy para evitar crash
+                    dtpFecha.Value = DateTime.Today;
+                }
+
+                // ---- Ahora recuperamos estudios y costo desde la BD (como ya lo hacías) ----
                 tablaOrden.Rows.Clear();
 
-                // Vamos a traer el dato real de la base de datos para no confiar en lo que se ve en el Grid
                 CConexion objetoConexion = new CConexion();
-                string query = "SELECT analisis_clinicos, costo FROM pacientes WHERE folio_curp = @fol";
-                MySqlCommand cmd = new MySqlCommand(query, objetoConexion.establecerconexion());
-                cmd.Parameters.AddWithValue("@fol", txtFolio.Text);
-                MySqlDataReader dr = cmd.ExecuteReader();
-
-                if (dr.Read())
+                try
                 {
-                    string estudiosRaw = dr["analisis_clinicos"].ToString();
-                    label15.Text = dr["costo"].ToString();
-
-                    if (!string.IsNullOrEmpty(estudiosRaw))
+                    string query = "SELECT analisis_clinicos, costo FROM pacientes WHERE folio_curp = @fol";
+                    using (MySqlCommand cmd = new MySqlCommand(query, objetoConexion.establecerconexion()))
                     {
-                        string[] lineas = estudiosRaw.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (string l in lineas)
+                        cmd.Parameters.AddWithValue("@fol", txtFolio.Text.Trim());
+
+                        using (MySqlDataReader dr = cmd.ExecuteReader())
                         {
-                            if (l.Contains("|"))
+                            if (dr.Read())
                             {
-                                string[] partes = l.Split('|');
-                                tablaOrden.Rows.Add(partes[0].Trim(), partes[1].Trim());
+                                // COSTO: al label
+                                label15.Text = dr["costo"]?.ToString() ?? "$0.00";
+
+                                // ESTUDIOS: reconstruir tablaOrden desde el formato "Analisis|Precio"
+                                string estudiosRaw = dr["analisis_clinicos"]?.ToString() ?? "";
+
+                                if (!string.IsNullOrWhiteSpace(estudiosRaw))
+                                {
+                                    string[] lineas = estudiosRaw.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                                    foreach (string l in lineas)
+                                    {
+                                        if (l.Contains("|"))
+                                        {
+                                            string[] partes = l.Split('|');
+                                            if (partes.Length >= 2)
+                                                tablaOrden.Rows.Add(partes[0].Trim(), partes[1].Trim());
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                dr.Close();
-                objetoConexion.cerrarconexion();
+                finally
+                {
+                    objetoConexion.cerrarconexion();
+                }
+
+                // Asegura que el total esté bien (opcional pero recomendado)
+                CalcularTotalOrden();
+
                 txtNombre.Focus();
             }
-            catch (Exception) { /* Silencio para evitar el spam de errores */ }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al cargar datos: " + ex.Message);
+            }
+
+        }
+
+        private void dgvPacientes_CellDoubleClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+            // Bloqueo para no tronar con el encabezado superior
+            if (e.RowIndex < 0) return;
+
+            string nombreP = dgvPacientes.Rows[e.RowIndex].Cells["ColNombre"].Value?.ToString() ?? "Paciente";
+            string folioBorrar = dgvPacientes.Rows[e.RowIndex].Cells["ColFOLIO"].Value?.ToString() ?? "";
+
+            // Preguntamos antes de borrar
+            DialogResult result = MessageBox.Show(
+                $"¿Deseas ELIMINAR permanentemente a: {nombreP}?\nEsta acción no se puede deshacer.",
+                "Confirmar Baja de Paciente",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    // Borramos de la Base de Datos
+                    EliminarPacienteBD(folioBorrar);
+
+                    // Borramos de la tabla visual
+                    dgvPacientes.Rows.RemoveAt(e.RowIndex);
+
+                    MessageBox.Show("Paciente eliminado con éxito.");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("No se pudo eliminar: " + ex.Message);
+                }
+            }
         }
 
         private void btnActualizar_Click(object sender, EventArgs e)
@@ -939,6 +987,11 @@ namespace Sistema_Clinica
         }
 
         private void dgvPacientes_CellContentClick_2(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void button5_Click(object sender, EventArgs e)
         {
 
         }

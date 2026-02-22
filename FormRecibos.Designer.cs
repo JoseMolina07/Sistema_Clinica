@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormRecibos));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
@@ -40,7 +40,6 @@
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.label20 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
@@ -82,6 +81,8 @@
             this.pictureBox7 = new System.Windows.Forms.PictureBox();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
+            this.txtRecibido = new System.Windows.Forms.TextBox();
+            this.lblTotalNumero = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -170,9 +171,10 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.lblTotalNumero);
+            this.groupBox5.Controls.Add(this.txtRecibido);
             this.groupBox5.Controls.Add(this.label20);
             this.groupBox5.Controls.Add(this.label14);
-            this.groupBox5.Controls.Add(this.label15);
             this.groupBox5.Controls.Add(this.label18);
             this.groupBox5.Controls.Add(this.label17);
             this.groupBox5.Controls.Add(this.label16);
@@ -181,6 +183,7 @@
             this.groupBox5.Size = new System.Drawing.Size(728, 81);
             this.groupBox5.TabIndex = 53;
             this.groupBox5.TabStop = false;
+            this.groupBox5.Enter += new System.EventHandler(this.groupBox5_Enter);
             // 
             // label20
             // 
@@ -202,17 +205,6 @@
             this.label14.Size = new System.Drawing.Size(87, 12);
             this.label14.TabIndex = 93;
             this.label14.Text = "Total con letras:";
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.BackColor = System.Drawing.SystemColors.Window;
-            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.Location = new System.Drawing.Point(556, 37);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(11, 12);
-            this.label15.TabIndex = 94;
-            this.label15.Text = "$";
             // 
             // label18
             // 
@@ -239,7 +231,7 @@
             this.label16.AutoSize = true;
             this.label16.BackColor = System.Drawing.SystemColors.Window;
             this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.Location = new System.Drawing.Point(556, 16);
+            this.label16.Location = new System.Drawing.Point(239, 16);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(11, 12);
             this.label16.TabIndex = 95;
@@ -325,7 +317,7 @@
             // 
             this.lblTelefono.AutoSize = true;
             this.lblTelefono.BackColor = System.Drawing.SystemColors.Window;
-            this.lblTelefono.Location = new System.Drawing.Point(419, 67);
+            this.lblTelefono.Location = new System.Drawing.Point(424, 18);
             this.lblTelefono.Name = "lblTelefono";
             this.lblTelefono.Size = new System.Drawing.Size(37, 13);
             this.lblTelefono.TabIndex = 73;
@@ -345,7 +337,7 @@
             // 
             this.lblEdad.AutoSize = true;
             this.lblEdad.BackColor = System.Drawing.SystemColors.Window;
-            this.lblEdad.Location = new System.Drawing.Point(422, 41);
+            this.lblEdad.Location = new System.Drawing.Point(424, 67);
             this.lblEdad.Name = "lblEdad";
             this.lblEdad.Size = new System.Drawing.Size(37, 13);
             this.lblEdad.TabIndex = 72;
@@ -361,6 +353,7 @@
             this.txtBusquedaFolio.Name = "txtBusquedaFolio";
             this.txtBusquedaFolio.Size = new System.Drawing.Size(128, 20);
             this.txtBusquedaFolio.TabIndex = 71;
+            this.txtBusquedaFolio.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtBusquedaFolio_KeyDown);
             // 
             // c
             // 
@@ -410,7 +403,7 @@
             this.lblSexo.AutoSize = true;
             this.lblSexo.BackColor = System.Drawing.SystemColors.Window;
             this.lblSexo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSexo.Location = new System.Drawing.Point(419, 13);
+            this.lblSexo.Location = new System.Drawing.Point(424, 41);
             this.lblSexo.Name = "lblSexo";
             this.lblSexo.Size = new System.Drawing.Size(49, 16);
             this.lblSexo.TabIndex = 77;
@@ -446,14 +439,14 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ColCANTIDAD,
@@ -465,6 +458,7 @@
             this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.Size = new System.Drawing.Size(728, 203);
             this.dataGridView1.TabIndex = 47;
+            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick_1);
             // 
             // ColCANTIDAD
             // 
@@ -658,6 +652,26 @@
             this.pictureBox5.TabIndex = 96;
             this.pictureBox5.TabStop = false;
             // 
+            // txtRecibido
+            // 
+            this.txtRecibido.Location = new System.Drawing.Point(558, 37);
+            this.txtRecibido.Name = "txtRecibido";
+            this.txtRecibido.Size = new System.Drawing.Size(39, 20);
+            this.txtRecibido.TabIndex = 100;
+            this.txtRecibido.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.txtRecibido.TextChanged += new System.EventHandler(this.txtRecibido_TextChanged);
+            this.txtRecibido.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtRecibido_KeyPress);
+            // 
+            // lblTotalNumero
+            // 
+            this.lblTotalNumero.AutoSize = true;
+            this.lblTotalNumero.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTotalNumero.Location = new System.Drawing.Point(555, 20);
+            this.lblTotalNumero.Name = "lblTotalNumero";
+            this.lblTotalNumero.Size = new System.Drawing.Size(39, 13);
+            this.lblTotalNumero.TabIndex = 101;
+            this.lblTotalNumero.Text = "$0.00";
+            // 
             // FormRecibos
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -730,7 +744,6 @@
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Button btnImprimir;
@@ -746,5 +759,7 @@
         private System.Windows.Forms.PictureBox pictureBox7;
         private System.Windows.Forms.PictureBox pictureBox6;
         private System.Windows.Forms.PictureBox pictureBox5;
+        private System.Windows.Forms.TextBox txtRecibido;
+        private System.Windows.Forms.Label lblTotalNumero;
     }
 }

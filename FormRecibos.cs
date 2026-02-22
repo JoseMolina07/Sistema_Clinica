@@ -12,6 +12,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Font = System.Drawing.Font;
+using MySql.Data.MySqlClient;
+using System.Globalization;
 
 namespace Sistema_Clinica
 {
@@ -20,6 +22,245 @@ namespace Sistema_Clinica
         public FormRecibos()
         {
             InitializeComponent();
+        }
+
+        private void CargarReciboPorFolio(string folio)
+        {
+            if (string.IsNullOrWhiteSpace(folio))
+            {
+                MessageBox.Show("Ingresa un folio.");
+                return;
+            }
+
+            CConexion objetoConexion = new CConexion();
+
+            try
+            {
+                string query = @"SELECT folio_curp, nombre, edad, sexo, telefono, correo, fecha, medico, costo, analisis_clinicos
+                         FROM pacientes
+                         WHERE folio_curp = @fol
+                         LIMIT 1";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, objetoConexion.establecerconexion()))
+                {
+                    cmd.Parameters.AddWithValue("@fol", folio);
+
+                    using (MySqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (!dr.Read())
+                        {
+                            MessageBox.Show("No se encontró ese folio.");
+                            return;
+                        }
+
+                        // ====== AJUSTA AQUÍ LOS NOMBRES DE TUS CONTROLES DEL RECIBO ======
+                        // (Estos nombres son ejemplo, cámbialos por los Name reales del diseñador)
+
+                        c.Text = dr["fecha"]?.ToString() ?? "";
+                        lblNombre.Text = dr["nombre"]?.ToString() ?? "";
+                        lblMedic.Text = dr["medico"]?.ToString() ?? "";
+                        label19.Text = dr["correo"]?.ToString() ?? "";
+                        lblTelefono.Text = dr["telefono"]?.ToString() ?? "";
+                        lblSexo.Text = dr["sexo"]?.ToString() ?? "";
+                        lblEdad.Text = dr["edad"]?.ToString() ?? "";
+                        
+
+                        // Fecha (parse seguro)
+                        string fechaStr = dr["fecha"]?.ToString() ?? "";
+                        DateTime fecha;
+
+                        if (!string.IsNullOrWhiteSpace(fechaStr) &&
+                            DateTime.TryParse(fechaStr, new CultureInfo("es-MX"), DateTimeStyles.None, out fecha))
+                        {
+                            c.Text = fecha.ToString("dd/MM/yyyy");
+                        }
+                        else
+                        {
+                            c.Text = fechaStr; // lo deja tal cual si no parsea
+                        }
+
+                        // ====== ESTUDIOS AL GRID ======
+                        string estudiosRaw = dr["analisis_clinicos"]?.ToString() ?? "";
+                        dataGridView1.Rows.Clear();
+                        txtRecibido.Text = "0";
+
+                        if (!string.IsNullOrWhiteSpace(estudiosRaw))
+                        {
+                            string[] lineas = estudiosRaw.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                            foreach (string l in lineas)
+                            {
+                                if (!l.Contains("|")) continue;
+
+                                string[] partes = l.Split('|');
+                                if (partes.Length < 2) continue;
+
+                                string estudio = partes[0].Trim();
+                                string precioTxt = partes[1].Trim();
+
+                                // limpia precio por si viene con $ o comas
+                                decimal precio = 0;
+                                decimal.TryParse(precioTxt.Replace("$", "").Replace(",", "").Trim(),
+                                                 NumberStyles.Any,
+                                                 CultureInfo.InvariantCulture,
+                                                 out precio);
+
+                                int cantidad = 1;
+                                decimal importe = cantidad * precio;
+
+                                // Tu grid debe tener estas 4 columnas en este orden:
+                                // CANTIDAD | ESTUDIO REALIZADO | P.U | IMPORTE
+                                dataGridView1.Rows.Add(cantidad, estudio, precio.ToString("0.00"), importe.ToString("0.00"));
+                                
+                            }
+                        }
+                        RecalcularTotales();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al buscar folio: " + ex.Message);
+            }
+            finally
+            {
+                objetoConexion.cerrarconexion();
+            }
+        }
+
+        private string NumeroALetras(decimal numero)
+        {
+            long parteEntera = (long)Math.Floor(numero);
+            int centavos = (int)Math.Round((numero - parteEntera) * 100);
+
+            string letras = EnteroALetras(parteEntera);
+            return $"{letras} PESOS {centavos:00}/100 M.N.";
+        }
+
+        private string EnteroALetras(long numero)
+        {
+            if (numero == 0) return "CERO";
+            if (numero < 0) return "MENOS " + EnteroALetras(Math.Abs(numero));
+
+            string[] unidades = { "", "UNO", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE",
+                          "DIEZ", "ONCE", "DOCE", "TRECE", "CATORCE", "QUINCE", "DIECISÉIS", "DIECISIETE", "DIECIOCHO", "DIECINUEVE" };
+
+            string[] decenas = { "", "", "VEINTE", "TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA" };
+
+            string[] centenas = { "", "CIENTO", "DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS",
+                          "SEISCIENTOS", "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS" };
+
+            if (numero == 100) return "CIEN";
+
+            string resultado = "";
+
+            if (numero >= 1000000)
+            {
+                long millones = numero / 1000000;
+                resultado += (millones == 1 ? "UN MILLÓN" : EnteroALetras(millones) + " MILLONES");
+                numero %= 1000000;
+                if (numero > 0) resultado += " ";
+            }
+
+            if (numero >= 1000)
+            {
+                long miles = numero / 1000;
+                resultado += (miles == 1 ? "MIL" : EnteroALetras(miles) + " MIL");
+                numero %= 1000;
+                if (numero > 0) resultado += " ";
+            }
+
+            if (numero >= 100)
+            {
+                long c = numero / 100;
+                resultado += centenas[c];
+                numero %= 100;
+                if (numero > 0) resultado += " ";
+            }
+
+            if (numero >= 20)
+            {
+                long d = numero / 10;
+                if (d == 2 && (numero % 10) != 0)
+                {
+                    resultado += "VEINTI" + EnteroALetras(numero % 10).ToLower();
+                }
+                else
+                {
+                    resultado += decenas[d];
+                    long u = numero % 10;
+                    if (u > 0) resultado += " Y " + unidades[u];
+                }
+            }
+            else if (numero > 0)
+            {
+                resultado += unidades[numero];
+            }
+
+            // Para dinero: UN en vez de UNO
+            resultado = resultado.Replace("UNO", "UN");
+            return resultado.Trim();
+        }
+
+        private decimal ObtenerTotalDesdeGrid()
+        {
+            decimal total = 0;
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                // Importe está en la columna 3
+                string importeTxt = row.Cells[3].Value?.ToString() ?? "0";
+                importeTxt = importeTxt.Replace("$", "").Replace(",", "").Trim();
+
+                if (decimal.TryParse(importeTxt, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal importe))
+                    total += importe;
+            }
+
+            return total;
+        }
+
+        private decimal LeerRecibido()
+        {
+            // Lee lo que escriben en el TextBox
+            string recibidoTxt = txtRecibido.Text ?? "0";
+            recibidoTxt = recibidoTxt.Replace("$", "").Replace(",", "").Trim();
+
+            // Intento con es-MX y fallback
+            if (decimal.TryParse(recibidoTxt, NumberStyles.Any, new CultureInfo("es-MX"), out decimal recibido))
+                return recibido;
+
+            if (decimal.TryParse(recibidoTxt, NumberStyles.Any, CultureInfo.InvariantCulture, out recibido))
+                return recibido;
+
+            return 0;
+        }
+
+        private void RecalcularTotales()
+        {
+            decimal total = ObtenerTotalDesdeGrid();
+            decimal recibido = LeerRecibido();
+
+            // ✅ TOTAL EN NÚMERO (nuevo label)
+            lblTotalNumero.Text = total.ToString("C2", new CultureInfo("es-MX"));
+
+            // ✅ TOTAL EN LETRAS
+            label16.Text = NumeroALetras(total);
+
+            // ✅ CAMBIO
+            decimal cambio = recibido - total;
+
+            if (cambio < 0)
+            {
+                label20.Text = "FALTAN " + Math.Abs(cambio).ToString("C2", new CultureInfo("es-MX"));
+                label20.ForeColor = Color.Red;
+            }
+            else
+            {
+                label20.Text = cambio.ToString("C2", new CultureInfo("es-MX"));
+                label20.ForeColor = Color.Green;
+            }
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -247,6 +488,8 @@ namespace Sistema_Clinica
 
         private void FormRecibos_Load(object sender, EventArgs e)
         {
+            dataGridView1.AllowUserToAddRows = false;
+
             // Quita todas las líneas de la cuadrícula (verticales y horizontales)
             dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.None;
 
@@ -264,6 +507,50 @@ namespace Sistema_Clinica
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void txtBusquedaFolio_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true; // quita el beep
+                CargarReciboPorFolio(txtBusquedaFolio.Text.Trim());
+            }
+        }
+
+        private void txtRecibido_TextChanged(object sender, EventArgs e)
+        {
+            
+            RecalcularTotales();
+        }
+
+        private void txtRecibido_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Permite teclas de control (Backspace), números y separador decimal
+            char sep = Convert.ToChar(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != sep)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            // Solo permitir 1 separador decimal
+            if (e.KeyChar == sep && txtRecibido.Text.Contains(sep))
+            {
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void dataGridView1_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void groupBox5_Enter(object sender, EventArgs e)
         {
 
         }
