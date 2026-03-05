@@ -16,6 +16,7 @@ namespace Sistema_Clinica
     public partial class Form1 : Form
     {
         //mi tabla temporal para hacer la orden tipo carrito de ocmpra
+        //donde se agregan los estudios antes de hacer una orden
         DataTable tablaOrden = new DataTable();
         public Form1()
         {
@@ -26,7 +27,7 @@ namespace Sistema_Clinica
             dgvPacientes.DataBindingComplete += dgvPacientes_DataBindingComplete;
             RefrescarTablaPacientes();
             CargarEstudios();
- 
+
             if (tablaOrden.Columns.Count == 0)
             {
                 tablaOrden.Columns.Add("Análisis");
@@ -42,28 +43,19 @@ namespace Sistema_Clinica
             dgvPacientes.AllowUserToAddRows = false;
             dgvPacientes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
-            // Color de fila alterno para mejorar la lectura
             dgvPacientes.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 240, 240);
-
             dgvPacientes.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-
-            // Ajusta la altura de la fila automáticamente según el contenido
+                //autoajuste de la tabla cuando vaya creciendo
             dgvPacientes.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-
-
             // Muestra todas las líneas de la cuadrícula como en el ticket de Chontalpa
             dgvPacientes.CellBorderStyle = DataGridViewCellBorderStyle.Single;
             dgvPacientes.GridColor = Color.Gray;
 
             // Activa el ajuste de texto en todo el grid
             dgvPacientes.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-
             // Hace que la fila ajuste su altura automáticamente según el contenido
             dgvPacientes.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-
-            dgvPacientes.Columns["ColCosto"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-
-            // Opcional: Dale un ancho fijo a la columna de análisis para que el texto salte
+            dgvPacientes.Columns["ColCosto"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;  
             if (dgvPacientes.Columns.Count > 9)
             {
                 dgvPacientes.Columns[9].Width = 250;
@@ -92,10 +84,9 @@ namespace Sistema_Clinica
                 cmd.Parameters.AddWithValue("@sex", cmbSexo.Text);
                 cmd.Parameters.AddWithValue("@tel", txtTelefono.Text);
                 cmd.Parameters.AddWithValue("@cor", txtCorreo.Text);
-
                 // CORRECCIÓN DE FECHA: Se envía como string corto para que XAMPP no reciba NULL
                 cmd.Parameters.AddWithValue("@fec", dtpFecha.Value.ToShortDateString());
-
+                cmd.Parameters.AddWithValue("@pag", txtQuienPaga.Text);
                 cmd.Parameters.AddWithValue("@med", txtMedico.Text);
                 cmd.Parameters.AddWithValue("@cos", costoLimpio);
                 cmd.Parameters.AddWithValue("@suc", txtsucursal.Text);
@@ -142,8 +133,7 @@ namespace Sistema_Clinica
         {
             CConexion objetoConexion = new CConexion();
             try
-            {
-                // Consultamos si el folio_curp ya existe en la tabla pacientes
+            {       
                 string query = "SELECT COUNT(*) FROM pacientes WHERE folio_curp = @fol";
                 MySqlCommand cmd = new MySqlCommand(query, objetoConexion.establecerconexion());
                 cmd.Parameters.AddWithValue("@fol", folio);
@@ -153,7 +143,7 @@ namespace Sistema_Clinica
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al verificar integridad: " + ex.Message);
+                MessageBox.Show("Error al verificar: " + ex.Message);
                 return false;
             }
             finally
@@ -167,11 +157,8 @@ namespace Sistema_Clinica
             decimal total = 0;
             foreach (DataRow fila in tablaOrden.Rows)
             {
-                // Sumamos los precios base extraídos del catálogo
                 total += Convert.ToDecimal(fila["Precio Base"]);
             }
-
-            // Mostramos el resultado en el label15 con formato de moneda
             label15.Text = total.ToString("C2");
         }
 
@@ -185,11 +172,7 @@ namespace Sistema_Clinica
                 MySqlCommand cmd = new MySqlCommand(query, objetoConexion.establecerconexion());
                 cmd.Parameters.AddWithValue("@fol", folio);
                 cmd.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error al eliminar en BD: " + ex.Message);
-            }
+            }catch (Exception ex){MessageBox.Show("Error al eliminar en BD: " + ex.Message);}
             finally
             {
                 objetoConexion.cerrarconexion();
@@ -220,8 +203,8 @@ namespace Sistema_Clinica
                     dgvPacientes.Rows[n].Cells["ColMEDICO"].Value = row["medico"]?.ToString();
                     dgvPacientes.Rows[n].Cells["ColCosto"].Value = row["costo"]?.ToString() ?? "$0.00";
                     dgvPacientes.Rows[n].Cells["ColSucursal"].Value = row["sucursal"]?.ToString();
+                    dgvPacientes.Rows[n].Cells["colPaga"].Value = row["quien_paga"]?.ToString() ?? "N/A";
 
-                    // LIMPIAMOS EL TEXTO PARA EL GRID (Quitamos los precios)
                     string analisisSucio = row["analisis_clinicos"]?.ToString() ?? "";
                     string analisisLimpio = "";
                     if (!string.IsNullOrEmpty(analisisSucio))
@@ -258,11 +241,11 @@ namespace Sistema_Clinica
                 cmd.Parameters.AddWithValue("@nom", txtNombre.Text);
                 cmd.Parameters.AddWithValue("@eda", numEdad.Value);
                 cmd.Parameters.AddWithValue("@sex", cmbSexo.Text);
-                cmd.Parameters.AddWithValue("@tel", txtTelefono.Text); // ¡IMPORTANTE!
+                cmd.Parameters.AddWithValue("@tel", txtTelefono.Text); 
                 cmd.Parameters.AddWithValue("@cor", txtCorreo.Text);
                 cmd.Parameters.AddWithValue("@fec", dtpFecha.Text);
                 cmd.Parameters.AddWithValue("@med", txtMedico.Text);
-                cmd.Parameters.AddWithValue("@cos", label15.Text); // ¡IMPORTANTE!
+                cmd.Parameters.AddWithValue("@cos", label15.Text); 
                 cmd.Parameters.AddWithValue("@suc", txtsucursal.Text);
                 cmd.Parameters.AddWithValue("@ana", estudios);
 
@@ -629,6 +612,13 @@ namespace Sistema_Clinica
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(txtQuienPaga.Text))
+            {
+                MessageBox.Show("¡Atención! Debes especificar quién realiza el pago (Tutor/Responsable).", "Campo Obligatorio", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtQuienPaga.Focus();
+                return;
+            }
+
             if (ExisteFolio(txtFolio.Text))
             {
                 MessageBox.Show("¡ERROR! Este folio ya existe.", "Integridad");
@@ -664,7 +654,7 @@ namespace Sistema_Clinica
                 dgvPacientes.Rows[n].Cells["ColCosto"].Value = label15.Text;
                 dgvPacientes.Rows[n].Cells["ColAnalisis"].Value = analisisParaPantalla; // TEXTO LIMPIO
                 dgvPacientes.Rows[n].Cells["ColSucursal"].Value = txtsucursal.Text;
-
+                dgvPacientes.Rows[n].Cells["ColQuienPaga"].Value = txtQuienPaga.Text;
                 MessageBox.Show("Guardado con éxito.");
                 LimpiarCampos();
                 tablaOrden.Clear();
@@ -825,6 +815,7 @@ namespace Sistema_Clinica
                 txtFolio.Text = fila.Cells["ColFOLIO"].Value?.ToString() ?? "";
                 txtNombre.Text = fila.Cells["ColNombre"].Value?.ToString() ?? "";
                 txtTelefono.Text = fila.Cells["ColTelefono"].Value?.ToString() ?? "";
+                txtQuienPaga.Text = dgvPacientes.CurrentRow.Cells["colPaga"].Value.ToString();
                 txtCorreo.Text = fila.Cells["colCORREO"].Value?.ToString() ?? "";
                 txtMedico.Text = fila.Cells["ColMEDICO"].Value?.ToString() ?? "";
                 txtsucursal.Text = fila.Cells["ColSucursal"].Value?.ToString() ?? "";
@@ -949,11 +940,10 @@ namespace Sistema_Clinica
             try
             {
                 string query = "UPDATE pacientes SET nombre=@nom, edad=@eda, sexo=@sex, telefono=@tel, correo=@cor, " +
-                               "fecha=@fec, medico=@med, sucursal=@suc, analisis_clinicos=@ana, costo=@cos WHERE folio_curp=@fol";
+                               "fecha=@fec, medico=@med, sucursal=@suc, analisis_clinicos=@ana, costo=@cos, quien_paga=@pag WHERE folio_curp=@fol";
 
                 MySqlCommand cmd = new MySqlCommand(query, objetoConexion.establecerconexion());
 
-                // Juntar Análisis y Precio con '|'
                 string analisisConPrecio = "";
                 foreach (DataRow r in tablaOrden.Rows)
                 {
@@ -971,6 +961,7 @@ namespace Sistema_Clinica
                 cmd.Parameters.AddWithValue("@suc", txtsucursal.Text);
                 cmd.Parameters.AddWithValue("@cos", label15.Text);
                 cmd.Parameters.AddWithValue("@ana", analisisConPrecio);
+                cmd.Parameters.AddWithValue("@pag", txtQuienPaga.Text);
 
                 cmd.ExecuteNonQuery();
                 MessageBox.Show("Actualizado correctamente.");
@@ -994,6 +985,41 @@ namespace Sistema_Clinica
         private void button5_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void label18_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            string busqueda = textBox1.Text.ToLower();
+
+            // Recorremos todas las filas del DataGridView
+            foreach (DataGridViewRow fila in dgvPacientes.Rows)
+            {
+                // Esta variable nos dirá si la fila coincide con algún dato
+                bool coincide = false;
+
+                // Revisamos celda por celda de la fila actual
+                foreach (DataGridViewCell celda in fila.Cells)
+                {
+                    if (celda.Value != null && celda.Value.ToString().ToLower().Contains(busqueda))
+                    {
+                        coincide = true;
+                        break; // Ya encontramos coincidencia, no hace falta seguir revisando esta fila
+                    }
+                }
+
+                // Si coincide, la mostramos; si no, la ocultamos
+                fila.Visible = coincide;
+            }
         }
     }
 }

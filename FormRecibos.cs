@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using Font = System.Drawing.Font;
 using MySql.Data.MySqlClient;
 using System.Globalization;
+using Zen.Barcode;
 
 namespace Sistema_Clinica
 {
@@ -23,6 +24,197 @@ namespace Sistema_Clinica
         {
             InitializeComponent();
         }
+
+        //este pedazo de codigo me hace un recibo estetico pero como hace captura de pantalla sale borroso
+
+        /*private void GuardarPdfDirecto()
+        {
+            try
+            {
+                // Obtener ruta de la carpeta Descargas
+                string pathDescargas = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+                string nombreArchivo = $"Recibo_{txtBusquedaFolio.Text.Trim()}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                string rutaCompleta = Path.Combine(pathDescargas, nombreArchivo);
+
+                // Captura del GroupBox (igual que en tu btnImprimir)
+                groupBox1.PerformLayout();
+                Bitmap bmp = new Bitmap(groupBox1.Width, groupBox1.Height);
+                groupBox1.DrawToBitmap(bmp, new System.Drawing.Rectangle(0, 0, groupBox1.Width, groupBox1.Height));
+                bmp.MakeTransparent(Color.White);
+
+                using (FileStream fs = new FileStream(rutaCompleta, FileMode.Create))
+                {
+                    iTextSharp.text.Rectangle mediaCarta = new iTextSharp.text.Rectangle(Utilities.MillimetersToPoints(139.7f), Utilities.MillimetersToPoints(215.9f));
+                    Document pdfDoc = new Document(mediaCarta, 10f, 10f, 10f, 10f);
+                    PdfWriter writer = PdfWriter.GetInstance(pdfDoc, fs);
+                    pdfDoc.Open();
+
+                    iTextSharp.text.Image imgRecibo = iTextSharp.text.Image.GetInstance(bmp, ImageFormat.Png);
+                    imgRecibo.ScaleToFit(mediaCarta.Width - 20f, mediaCarta.Height - 20f);
+                    imgRecibo.Alignment = iTextSharp.text.Image.ALIGN_CENTER;
+                    pdfDoc.Add(imgRecibo);
+
+                    pdfDoc.Close();
+                }
+
+                // Feedback discreto (puedes quitarlo si prefieres que sea silencioso)
+                // MessageBox.Show("PDF guardado en Descargas");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al guardar PDF: " + ex.Message);
+            }
+        }*/
+        private void GuardarPdfDirecto()
+        {
+            try
+            {
+                string pathDescargas = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+                string nombreArchivo = $"Recibo_{txtBusquedaFolio.Text.Trim()}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                string rutaCompleta = Path.Combine(pathDescargas, nombreArchivo);
+
+                // Configuración de Media Carta (396 x 612 puntos)
+                iTextSharp.text.Rectangle mediaCarta = new iTextSharp.text.Rectangle(396f, 612f);
+
+                using (FileStream fs = new FileStream(rutaCompleta, FileMode.Create))
+                {
+                    Document pdfDoc = new Document(mediaCarta, 20f, 20f, 20f, 20f);
+                    PdfWriter writer = PdfWriter.GetInstance(pdfDoc, fs);
+                    pdfDoc.Open();
+
+                 
+                    if (pictureBox3.Image != null)
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            pictureBox3.Image.Save(ms, ImageFormat.Png);
+                            iTextSharp.text.Image logo = iTextSharp.text.Image.GetInstance(ms.GetBuffer());
+                            logo.ScaleToFit(200f, 200f);
+                            float x = (mediaCarta.Width - logo.ScaledWidth) / 2;
+                            float y = (mediaCarta.Height - logo.ScaledHeight) / 2;
+                            logo.SetAbsolutePosition(x, y);
+                            PdfGState gstate = new PdfGState { FillOpacity = 0.1f };
+                            writer.DirectContentUnder.SetGState(gstate);
+                            writer.DirectContentUnder.AddImage(logo);
+                        }
+                    }
+
+                    var fBold = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 9);
+                    var fNormal = FontFactory.GetFont(FontFactory.HELVETICA, 9);
+                    var fTitulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 14);
+    
+                    PdfPTable headerTable = new PdfPTable(2);
+                    headerTable.WidthPercentage = 100;
+                    headerTable.SetWidths(new float[] { 2f, 1f });
+                    headerTable.DefaultCell.Border = 0;
+
+                    if (pictureBox2.Image != null)
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            pictureBox2.Image.Save(ms, ImageFormat.Png);
+                            iTextSharp.text.Image imgLogo = iTextSharp.text.Image.GetInstance(ms.GetBuffer());
+                            imgLogo.ScaleToFit(120f, 80f);
+                            headerTable.AddCell(new PdfPCell(imgLogo) { Border = 0 });
+                        }
+                    }
+                    else { headerTable.AddCell(new PdfPCell(new Phrase(" ")) { Border = 0 }); }
+
+                    PdfPCell cellDer = new PdfPCell();
+                    cellDer.Border = 0;
+                    cellDer.HorizontalAlignment = iTextSharp.text.Element.ALIGN_RIGHT;
+                    if (picCodigoBarras.Image != null)
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            picCodigoBarras.Image.Save(ms, ImageFormat.Png);
+                            iTextSharp.text.Image imgBar = iTextSharp.text.Image.GetInstance(ms.GetBuffer());
+                            imgBar.ScaleToFit(80f, 25f);
+                            cellDer.AddElement(imgBar);
+                        }
+                    }
+                    cellDer.AddElement(new Paragraph("Folio: " + txtBusquedaFolio.Text, fBold));
+                    headerTable.AddCell(cellDer);
+                    pdfDoc.Add(headerTable);
+
+                    pdfDoc.Add(new Paragraph("LABORATORIO DE ANÁLISIS CLÍNICOS", fBold));
+                    pdfDoc.Add(new Paragraph("C 20 de Noviembre S/N Col. Pueblo Nuevo. Tacotalpa, Tab.", fNormal));
+                    pdfDoc.Add(new Paragraph("-----------------------------------------------------------------------------------------"));
+
+                    //datos de los pacientes
+                    PdfPTable datos = new PdfPTable(2);
+                    datos.WidthPercentage = 100;
+                    datos.AddCell(new PdfPCell(new Phrase("Nombre: " + lblNombre.Text, fNormal)) { Border = 0 });
+                    datos.AddCell(new PdfPCell(new Phrase("Fecha: " + c.Text, fNormal)) { Border = 0 });
+                    datos.AddCell(new PdfPCell(new Phrase("Edad: " + lblEdad.Text + " | Sexo: " + lblSexo.Text, fNormal)) { Border = 0 });
+                    datos.AddCell(new PdfPCell(new Phrase("Médico: " + lblMedic.Text, fNormal)) { Border = 0 });
+                    datos.AddCell(new PdfPCell(new Phrase("Correo: " + label19.Text, fNormal)) { Border = 0 });
+                    datos.AddCell(new PdfPCell(new Phrase("Quién Paga: " + label27.Text, fBold)) { Border = 0 }); // ✅ Nuevo
+                    pdfDoc.Add(datos);
+                    pdfDoc.Add(new Paragraph(" "));
+
+                    PdfPTable tabla = new PdfPTable(4);
+                    tabla.WidthPercentage = 100;
+                    tabla.SetWidths(new float[] { 1f, 4f, 1.5f, 1.5f });
+                    foreach (string h in new string[] { "Cant.", "Estudio", "P.U.", "Importe" })
+                        tabla.AddCell(new PdfPCell(new Phrase(h, fBold)) { Border = iTextSharp.text.Rectangle.BOTTOM_BORDER });
+
+                    foreach (DataGridViewRow row in dataGridView1.Rows)
+                    {
+                        tabla.AddCell(new PdfPCell(new Phrase(row.Cells[0].Value?.ToString(), fNormal)) { Border = 0 });
+                        tabla.AddCell(new PdfPCell(new Phrase(row.Cells[1].Value?.ToString(), fNormal)) { Border = 0 });
+                        tabla.AddCell(new PdfPCell(new Phrase(row.Cells[2].Value?.ToString(), fNormal)) { Border = 0 });
+                        tabla.AddCell(new PdfPCell(new Phrase(row.Cells[3].Value?.ToString(), fNormal)) { Border = 0 });
+                    }
+                    pdfDoc.Add(tabla);
+
+                    pdfDoc.Add(new Paragraph(" "));
+                    pdfDoc.Add(new Paragraph("Total: " + lblTotalNumero.Text, fBold));
+                    pdfDoc.Add(new Paragraph("Recibido: " + txtRecibido.Text + " | Cambio: " + label20.Text, fNormal));
+                    pdfDoc.Add(new Paragraph("SON: " + label16.Text, fNormal));
+
+                    string obs = richTextBox1.Text.Trim();
+                    pdfDoc.Add(new Paragraph("Observaciones: " + obs, fNormal));
+
+                    if (pictureBox1.Image != null)
+                    {
+                        PdfPTable footer = new PdfPTable(2);
+                        footer.WidthPercentage = 35;
+                        footer.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+                        footer.DefaultCell.Border = 0;
+                        footer.SetWidths(new float[] { 1f, 4f });
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            pictureBox1.Image.Save(ms, ImageFormat.Png);
+                            iTextSharp.text.Image icon = iTextSharp.text.Image.GetInstance(ms.GetBuffer());
+                            icon.ScaleToFit(12f, 12f);
+                            footer.AddCell(new PdfPCell(icon) { Border = 0, VerticalAlignment = iTextSharp.text.Element.ALIGN_MIDDLE, HorizontalAlignment = iTextSharp.text.Element.ALIGN_RIGHT });
+                            footer.AddCell(new PdfPCell(new Phrase("932 106 6122", fBold)) { Border = 0, VerticalAlignment = iTextSharp.text.Element.ALIGN_MIDDLE });
+                        }
+                        pdfDoc.Add(new Paragraph(" "));
+                        pdfDoc.Add(footer);
+                    }
+                    pdfDoc.Close();
+                }
+            }
+            catch (Exception ex) { MessageBox.Show("Error al generar PDF: " + ex.Message); }
+        }
+
+        private void GenerarCodigoBarras(string folio)
+        {
+            if (picCodigoBarras != null)
+            {
+                Code128BarcodeDraw barcode = BarcodeDrawFactory.Code128WithChecksum;
+
+                // 2. Parámetros del Draw: (Texto, Altura, Factor de escala/ancho)
+                // El segundo parámetro (100) es la ALTURA
+                // El tercer parámetro (3) es el ANCHO (escala de los módulos)
+                picCodigoBarras.Image = barcode.Draw(folio, 150, 20 );
+                picCodigoBarras.SizeMode = PictureBoxSizeMode.Zoom;
+            }
+        }
+
+
 
         private void CargarReciboPorFolio(string folio)
         {
@@ -36,9 +228,9 @@ namespace Sistema_Clinica
 
             try
             {
-                string query = @"SELECT folio_curp, nombre, edad, sexo, telefono, correo, fecha, medico, costo, analisis_clinicos
-                         FROM pacientes
-                         WHERE folio_curp = @fol
+                string query = @"SELECT folio_curp, nombre, edad, sexo, telefono, correo, fecha, medico, costo, analisis_clinicos, quien_paga 
+                         FROM pacientes 
+                         WHERE folio_curp = @fol 
                          LIMIT 1";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, objetoConexion.establecerconexion()))
@@ -53,9 +245,6 @@ namespace Sistema_Clinica
                             return;
                         }
 
-                        // ====== AJUSTA AQUÍ LOS NOMBRES DE TUS CONTROLES DEL RECIBO ======
-                        // (Estos nombres son ejemplo, cámbialos por los Name reales del diseñador)
-
                         c.Text = dr["fecha"]?.ToString() ?? "";
                         lblNombre.Text = dr["nombre"]?.ToString() ?? "";
                         lblMedic.Text = dr["medico"]?.ToString() ?? "";
@@ -63,23 +252,16 @@ namespace Sistema_Clinica
                         lblTelefono.Text = dr["telefono"]?.ToString() ?? "";
                         lblSexo.Text = dr["sexo"]?.ToString() ?? "";
                         lblEdad.Text = dr["edad"]?.ToString() ?? "";
-                        
+                        label27.Text = dr["quien_paga"]?.ToString() ?? "N/A";
 
-                        // Fecha (parse seguro)
                         string fechaStr = dr["fecha"]?.ToString() ?? "";
                         DateTime fecha;
-
-                        if (!string.IsNullOrWhiteSpace(fechaStr) &&
-                            DateTime.TryParse(fechaStr, new CultureInfo("es-MX"), DateTimeStyles.None, out fecha))
+                        if (!string.IsNullOrWhiteSpace(fechaStr) && DateTime.TryParse(fechaStr, new CultureInfo("es-MX"), DateTimeStyles.None, out fecha))
                         {
                             c.Text = fecha.ToString("dd/MM/yyyy");
                         }
-                        else
-                        {
-                            c.Text = fechaStr; // lo deja tal cual si no parsea
-                        }
+                        else { c.Text = fechaStr; }
 
-                        // ====== ESTUDIOS AL GRID ======
                         string estudiosRaw = dr["analisis_clinicos"]?.ToString() ?? "";
                         dataGridView1.Rows.Clear();
                         txtRecibido.Text = "0";
@@ -87,34 +269,22 @@ namespace Sistema_Clinica
                         if (!string.IsNullOrWhiteSpace(estudiosRaw))
                         {
                             string[] lineas = estudiosRaw.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
                             foreach (string l in lineas)
                             {
                                 if (!l.Contains("|")) continue;
-
                                 string[] partes = l.Split('|');
                                 if (partes.Length < 2) continue;
 
                                 string estudio = partes[0].Trim();
                                 string precioTxt = partes[1].Trim();
-
-                                // limpia precio por si viene con $ o comas
                                 decimal precio = 0;
-                                decimal.TryParse(precioTxt.Replace("$", "").Replace(",", "").Trim(),
-                                                 NumberStyles.Any,
-                                                 CultureInfo.InvariantCulture,
-                                                 out precio);
+                                decimal.TryParse(precioTxt.Replace("$", "").Replace(",", "").Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out precio);
 
-                                int cantidad = 1;
-                                decimal importe = cantidad * precio;
-
-                                // Tu grid debe tener estas 4 columnas en este orden:
-                                // CANTIDAD | ESTUDIO REALIZADO | P.U | IMPORTE
-                                dataGridView1.Rows.Add(cantidad, estudio, precio.ToString("0.00"), importe.ToString("0.00"));
-                                
+                                dataGridView1.Rows.Add(1, estudio, precio.ToString("0.00"), precio.ToString("0.00"));
                             }
                         }
                         RecalcularTotales();
+                        GenerarCodigoBarras(folio);
                     }
                 }
             }
@@ -196,8 +366,6 @@ namespace Sistema_Clinica
             {
                 resultado += unidades[numero];
             }
-
-            // Para dinero: UN en vez de UNO
             resultado = resultado.Replace("UNO", "UN");
             return resultado.Trim();
         }
@@ -209,8 +377,6 @@ namespace Sistema_Clinica
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
                 if (row.IsNewRow) continue;
-
-                // Importe está en la columna 3
                 string importeTxt = row.Cells[3].Value?.ToString() ?? "0";
                 importeTxt = importeTxt.Replace("$", "").Replace(",", "").Trim();
 
@@ -223,11 +389,9 @@ namespace Sistema_Clinica
 
         private decimal LeerRecibido()
         {
-            // Lee lo que escriben en el TextBox
             string recibidoTxt = txtRecibido.Text ?? "0";
             recibidoTxt = recibidoTxt.Replace("$", "").Replace(",", "").Trim();
 
-            // Intento con es-MX y fallback
             if (decimal.TryParse(recibidoTxt, NumberStyles.Any, new CultureInfo("es-MX"), out decimal recibido))
                 return recibido;
 
@@ -242,13 +406,10 @@ namespace Sistema_Clinica
             decimal total = ObtenerTotalDesdeGrid();
             decimal recibido = LeerRecibido();
 
-            // ✅ TOTAL EN NÚMERO (nuevo label)
             lblTotalNumero.Text = total.ToString("C2", new CultureInfo("es-MX"));
 
-            // ✅ TOTAL EN LETRAS
             label16.Text = NumeroALetras(total);
 
-            // ✅ CAMBIO
             decimal cambio = recibido - total;
 
             if (cambio < 0)
@@ -324,78 +485,7 @@ namespace Sistema_Clinica
 
         }
 
-        private void btnImprimir_Click(object sender, EventArgs e)
-        {
-            // 1. Capturamos el diseño tal cual está en tu GroupBox
-            Bitmap bmp = new Bitmap(groupBox1.Width, groupBox1.Height);
-            groupBox1.DrawToBitmap(
-                bmp,
-                new System.Drawing.Rectangle(0, 0, groupBox1.Width, groupBox1.Height)
-            );
-
-            SaveFileDialog saveFile = new SaveFileDialog();
-            saveFile.Filter = "PDF Files|*.pdf";
-            saveFile.FileName = "Recibo_Laboratorio_Pio.pdf";
-
-            if (saveFile.ShowDialog() == DialogResult.OK)
-            {
-                using (FileStream fs = new FileStream(saveFile.FileName, FileMode.Create))
-                {
-                    // ======= TAMAÑO REAL MEDIA CARTA (5.5 x 8.5 pulgadas) =======
-                    var mediaCarta = new iTextSharp.text.Rectangle(
-                        Utilities.MillimetersToPoints(139.7f), // 5.5 pulgadas
-                        Utilities.MillimetersToPoints(215.9f)  // 8.5 pulgadas
-                    );
-
-                    Document pdfDoc = new Document(mediaCarta, 10f, 10f, 10f, 10f);
-                    PdfWriter writer = PdfWriter.GetInstance(pdfDoc, fs);
-                    pdfDoc.Open();
-
-                    // ======= MARCA DE AGUA (LOGO CENTRADO EN MEDIA CARTA) =======
-                    if (pictureBox3.Image != null)
-                    {
-                        iTextSharp.text.Image marcaAgua =
-                            iTextSharp.text.Image.GetInstance(pictureBox3.Image, ImageFormat.Png);
-
-                        // Reducimos un poco el logo para que no invada el recibo
-                        marcaAgua.ScaleToFit(
-                            mediaCarta.Width * 0.6f,
-                            mediaCarta.Height * 0.6f
-                        );
-
-                        // Centramos el logo en MEDIA CARTA (no en LETTER)
-                        marcaAgua.SetAbsolutePosition(
-                            (mediaCarta.Width - marcaAgua.ScaledWidth) / 2,
-                            (mediaCarta.Height - marcaAgua.ScaledHeight) / 2
-                        );
-
-                        pdfDoc.Add(marcaAgua);
-                    }
-
-                    // ======= RECIBO (TU GROUPBOX) ENCIMA DEL LOGO =======
-                    iTextSharp.text.Image imgRecibo =
-                        iTextSharp.text.Image.GetInstance(bmp, ImageFormat.Png);
-
-                    // Ajustamos el recibo para que ocupe casi toda la hoja
-                    imgRecibo.ScaleToFit(
-                        mediaCarta.Width - 20f,
-                        mediaCarta.Height - 20f
-                    );
-
-                    imgRecibo.Alignment = iTextSharp.text.Image.ALIGN_CENTER;
-
-                    pdfDoc.Add(imgRecibo);
-                    pdfDoc.Close();
-                }
-
-                MessageBox.Show(
-                    "Recibo generado con éxito (Media Carta)",
-                    "Laboratorios Pío",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information
-                );
-            }
-        }
+        
 
         private void btnRecibo_Click(object sender, EventArgs e)
         {
@@ -408,35 +498,11 @@ namespace Sistema_Clinica
 
         private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
         {
-            /* 1. Resolvemos la ambigüedad del Rectangle
-            System.Drawing.Rectangle areaImpresion = new System.Drawing.Rectangle(25, 25, 500, (500 * groupBox1.Height / groupBox1.Width));
+            RecalcularTotales();
 
-            // 2. DIBUJAR EL LOGO PRIMERO (Marca de agua)
-            // Lo ponemos justo en el centro del área donde irá el recibo
-            if (pictureBox3.Image != null)
-            {
-                int anchoLogo = 300;
-                int altoLogo = 300;
-                int xLogo = areaImpresion.X + (areaImpresion.Width - anchoLogo) / 2;
-                int yLogo = areaImpresion.Y + (areaImpresion.Height - altoLogo) / 2;
-
-                e.Graphics.DrawImage(pictureBox3.Image, xLogo, yLogo, anchoLogo, altoLogo);
-            }
-
-            // 3. CAPTURAR EL GROUPBOX SIN FONDO
-            // Para que el blanco del GroupBox no tape el logo, usamos este truco:
-            Bitmap bmp = new Bitmap(groupBox1.Width, groupBox1.Height);
-            groupBox1.DrawToBitmap(bmp, new System.Drawing.Rectangle(0, 0, groupBox1.Width, groupBox1.Height));
-
-            // Hacemos que el color blanco de la captura sea transparente para que se vea el logo de atrás
-            bmp.MakeTransparent(System.Drawing.Color.White);
-
-            // 4. DIBUJAR EL RECIBO ENCIMA
-            e.Graphics.DrawImage(bmp, areaImpresion);*/
-            // ======= 1. DEFINIMOS EL ÁREA DE IMPRESIÓN (AQUÍ FALTABA) =======
             float margen = 40;
 
-            System.Drawing.RectangleF areaImpresion =
+            System.Drawing.RectangleF area =
                 new System.Drawing.RectangleF(
                     margen,
                     margen,
@@ -444,41 +510,60 @@ namespace Sistema_Clinica
                     e.PageBounds.Height - (margen * 2)
                 );
 
-            // ======= 2. CAPTURAMOS TU GROUPBOX =======
-            Bitmap bmp = new Bitmap(groupBox1.Width, groupBox1.Height);
-            groupBox1.DrawToBitmap(bmp,
-                new System.Drawing.Rectangle(0, 0, groupBox1.Width, groupBox1.Height));
-
-            // ======= 3. DIBUJAMOS LOGO COMO MARCA DE AGUA (CENTRADO) =======
             if (pictureBox3.Image != null)
             {
-                float logoAncho = areaImpresion.Width * 0.35f; // 35% del ancho
+                float logoAncho = area.Width * 0.4f;
                 float logoAlto = logoAncho;
 
-                float xLogo = areaImpresion.X + (areaImpresion.Width - logoAncho) / 2;
-                float yLogo = areaImpresion.Y + (areaImpresion.Height - logoAlto) / 2;
+                float xLogo = area.X + (area.Width - logoAncho) / 2;
+                float yLogo = area.Y + (area.Height - logoAlto) / 2;
 
-                e.Graphics.DrawImage(
-                    pictureBox3.Image,
-                    xLogo,
-                    yLogo,
-                    logoAncho,
-                    logoAlto
-                );
+                using (var ia = new System.Drawing.Imaging.ImageAttributes())
+                {
+                    var cm = new System.Drawing.Imaging.ColorMatrix();
+                    cm.Matrix33 = 0.15f;
+                    ia.SetColorMatrix(cm);
+
+                    System.Drawing.Rectangle destino = new System.Drawing.Rectangle(
+                        (int)xLogo,
+                        (int)yLogo,
+                        (int)logoAncho,
+                        (int)logoAlto
+                    );
+
+                    e.Graphics.DrawImage(
+                        pictureBox3.Image,
+                        destino,
+                        0,
+                        0,
+                        pictureBox3.Image.Width,
+                        pictureBox3.Image.Height,
+                        System.Drawing.GraphicsUnit.Pixel,
+                        ia
+                    );
+                }
             }
 
-            // ======= 4. DIBUJAR RECIBO ENCIMA (ESCALADO PROPORCIONAL) =======
-            float escalaX = areaImpresion.Width / bmp.Width;
-            float escalaY = areaImpresion.Height / bmp.Height;
+            Bitmap bmp = new Bitmap(groupBox1.Width, groupBox1.Height);
+            groupBox1.DrawToBitmap(
+                bmp,
+                new System.Drawing.Rectangle(0, 0, groupBox1.Width, groupBox1.Height)
+            );
+
+            bmp.MakeTransparent(System.Drawing.Color.White);
+
+            float escalaX = area.Width / bmp.Width;
+            float escalaY = area.Height / bmp.Height;
             float escalaFinal = Math.Min(escalaX, escalaY);
 
             float nuevoAncho = bmp.Width * escalaFinal;
             float nuevoAlto = bmp.Height * escalaFinal;
 
-            float x = areaImpresion.X + (areaImpresion.Width - nuevoAncho) / 2;
-            float y = areaImpresion.Y + (areaImpresion.Height - nuevoAlto) / 2;
+            float x = area.X + (area.Width - nuevoAncho) / 2;
+            float y = area.Y + (area.Height - nuevoAlto) / 2;
 
             e.Graphics.DrawImage(bmp, x, y, nuevoAncho, nuevoAlto);
+
         }
 
         private void groupBox4_Enter(object sender, EventArgs e)
@@ -489,20 +574,13 @@ namespace Sistema_Clinica
         private void FormRecibos_Load(object sender, EventArgs e)
         {
             dataGridView1.AllowUserToAddRows = false;
-
-            // Quita todas las líneas de la cuadrícula (verticales y horizontales)
             dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.None;
 
-            // Quita el borde externo del control
             dataGridView1.BorderStyle = BorderStyle.None;
 
-            // Asegura que el fondo de las celdas sea blanco para que no se vea gris en el papel
             dataGridView1.RowsDefaultCellStyle.BackColor = Color.White;
             dataGridView1.BackgroundColor = Color.White;
-            // Asegura que los encabezados sean visibles
             dataGridView1.ColumnHeadersVisible = true;
-
-            // Opcional: Si quieres que el encabezado tenga una línea abajo para separar
             dataGridView1.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         }
 
@@ -515,8 +593,9 @@ namespace Sistema_Clinica
         {
             if (e.KeyCode == Keys.Enter)
             {
-                e.SuppressKeyPress = true; // quita el beep
+                e.SuppressKeyPress = true; 
                 CargarReciboPorFolio(txtBusquedaFolio.Text.Trim());
+                Application.DoEvents();
             }
         }
 
@@ -527,8 +606,7 @@ namespace Sistema_Clinica
         }
 
         private void txtRecibido_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            // Permite teclas de control (Backspace), números y separador decimal
+        { 
             char sep = Convert.ToChar(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
 
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != sep)
@@ -536,8 +614,6 @@ namespace Sistema_Clinica
                 e.Handled = true;
                 return;
             }
-
-            // Solo permitir 1 separador decimal
             if (e.KeyChar == sep && txtRecibido.Text.Contains(sep))
             {
                 e.Handled = true;
@@ -553,6 +629,28 @@ namespace Sistema_Clinica
         private void groupBox5_Enter(object sender, EventArgs e)
         {
 
+        }
+
+        private void txtBusquedaFolio_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void picCodigoBarras_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnGenerarPdf_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtBusquedaFolio.Text))
+            {
+                MessageBox.Show("Por favor, ingresa un folio.");
+                return;
+            }
+            RecalcularTotales();
+            GuardarPdfDirecto();
+            MessageBox.Show("PDF generado correctamente en Descargas.");
         }
     }
 }
