@@ -20,59 +20,69 @@ namespace Sistema_Clinica
 
         private void btnRespaldar_Click(object sender, EventArgs e)
         {
-            // 1. Abrir diálogo para elegir dónde guardar
-            using (SaveFileDialog sfd = new SaveFileDialog())
+            // 1. Elegir ruta donde guardar
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Archivo SQL (*.sql)|*.sql";
+            sfd.FileName = $"Respaldo_Clinica_{DateTime.Now:yyyyMMdd_HHmmss}.sql";
+
+            if (sfd.ShowDialog() == DialogResult.OK)
             {
-                sfd.Filter = "Archivo SQL (*.sql)|*.sql";
-                sfd.FileName = $"Respaldo_Clinica_{DateTime.Now:yyyyMMdd_HHmmss}.sql";
+                string rutaCompleta = sfd.FileName;
 
-                if (sfd.ShowDialog() == DialogResult.OK)
+                // 2. Configuración de XAMPP (Asegúrate de que esta ruta sea real)
+                string mysqldumpPath = @"C:\xampp\mysql\bin\mysqldump.exe";
+                string dbName = "db_laboratorio_pio";
+                string dbUser = "root";
+
+                // 3. Ejecución segura
+                try
                 {
-                    string rutaCompleta = sfd.FileName;
-                    string mysqldumpPath = @"C:\xampp\mysql\bin\mysqldump.exe";
-                    string dbName = "db_laboratorio_pio";
-                    string dbUser = "root";
-                    string dbPass = "";
+                    this.Cursor = Cursors.WaitCursor;
 
-                    try
+                    ProcessStartInfo psi = new ProcessStartInfo();
+                    psi.FileName = mysqldumpPath;
+
+                    // IMPORTANTE: Si NO tienes contraseña en XAMPP, no incluyas -p.
+                    // Si el comando te da error de "Access denied", entonces usa: $"-u{dbUser} -p \"{dbName}\"..."
+                    psi.Arguments = $"-u{dbUser} \"{dbName}\" -r \"{rutaCompleta}\"";
+
+                    psi.UseShellExecute = false;
+                    psi.CreateNoWindow = true;
+
+                    using (Process proc = Process.Start(psi))
                     {
-                        this.Cursor = Cursors.WaitCursor;
-
-                        ProcessStartInfo psi = new ProcessStartInfo();
-                        psi.FileName = mysqldumpPath;
-                        psi.Arguments = $"-u{dbUser} -p{dbPass} {dbName} -r \"{rutaCompleta}\"";
-                        psi.WindowStyle = ProcessWindowStyle.Hidden;
-                        psi.UseShellExecute = false;
-                        psi.CreateNoWindow = true;
-
-                        using (Process proc = Process.Start(psi))
+                        // Espera máxima de 15 segundos para evitar que se congele
+                        if (proc.WaitForExit(15000))
                         {
-                            proc.WaitForExit();
-
                             if (proc.ExitCode == 0)
                             {
-                                string fecha = DateTime.Now.ToString("dd/MM/yyyy");
-                                string hora = DateTime.Now.ToString("HH:mm:ss");
-                                string quien = "N/A"; 
+                                // Agregar al DataGridView
+                                dgvRespaldos.Rows.Add(DateTime.Now.ToString("dd/MM/yyyy"),
+                                                     DateTime.Now.ToString("HH:mm:ss"),
+                                                     "N/A",
+                                                     rutaCompleta);
 
-                                dgvRespaldos.Rows.Add(fecha, hora, quien, rutaCompleta);
-
-                                MessageBox.Show("Respaldo realizado con éxito.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                MessageBox.Show("Respaldo completado con éxito.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                             else
                             {
-                                MessageBox.Show("Error al realizar el respaldo. Revisa usuario/contraseña.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show("Error al respaldar. El proceso terminó con código: " + proc.ExitCode);
                             }
                         }
+                        else
+                        {
+                            proc.Kill(); // Mata el proceso si se quedó bloqueado
+                            MessageBox.Show("El respaldo tomó demasiado tiempo y fue cancelado.");
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Error: " + ex.Message);
-                    }
-                    finally
-                    {
-                        this.Cursor = Cursors.Default;
-                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error crítico: " + ex.Message);
+                }
+                finally
+                {
+                    this.Cursor = Cursors.Default;
                 }
             }
         }
@@ -92,6 +102,11 @@ namespace Sistema_Clinica
                 nuevoInicio.Show();
             }
             this.Close();
+        }
+
+        private void FormRespaldo_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
