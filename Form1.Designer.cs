@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.btnEtiqueta = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.btnAbrirRecibos = new System.Windows.Forms.Button();
@@ -112,6 +112,7 @@
             // btnEtiqueta
             // 
             this.btnEtiqueta.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.btnEtiqueta.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnEtiqueta.Location = new System.Drawing.Point(3, 265);
             this.btnEtiqueta.Name = "btnEtiqueta";
             this.btnEtiqueta.Size = new System.Drawing.Size(61, 53);
@@ -243,11 +244,13 @@
             this.btnRespaldo.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.btnRespaldo.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnRespaldo.BackgroundImage")));
             this.btnRespaldo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnRespaldo.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnRespaldo.Location = new System.Drawing.Point(2, 171);
             this.btnRespaldo.Name = "btnRespaldo";
             this.btnRespaldo.Size = new System.Drawing.Size(62, 53);
             this.btnRespaldo.TabIndex = 100;
             this.btnRespaldo.UseVisualStyleBackColor = true;
+            this.btnRespaldo.Click += new System.EventHandler(this.btnRespaldo_Click);
             // 
             // label20
             // 
@@ -704,14 +707,14 @@
             this.colPaga,
             this.ColAnalisis,
             this.ColCosto});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvPacientes.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvPacientes.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvPacientes.Location = new System.Drawing.Point(146, 375);
             this.dgvPacientes.Name = "dgvPacientes";
             this.dgvPacientes.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;

@@ -1021,5 +1021,23 @@ namespace Sistema_Clinica
                 fila.Visible = coincide;
             }
         }
+
+        private void btnRespaldo_Click(object sender, EventArgs e)
+        {
+          FormRespaldo ventanaExistente = Application.OpenForms.OfType<FormRespaldo>().FirstOrDefault();
+
+            if (ventanaExistente != null)
+            {
+                ventanaExistente.Show();
+                ventanaExistente.BringToFront();
+                if (ventanaExistente.WindowState == FormWindowState.Minimized)
+                    ventanaExistente.WindowState = FormWindowState.Normal;
+            }
+            else
+            {  
+                FormRespaldo nuevoRespaldo = new FormRespaldo();
+                nuevoRespaldo.Show();
+            }
+        }
     }
 }
