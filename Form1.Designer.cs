@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.btnEtiqueta = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.btnAbrirRecibos = new System.Windows.Forms.Button();
@@ -113,9 +113,9 @@
             // 
             this.btnEtiqueta.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.btnEtiqueta.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnEtiqueta.Location = new System.Drawing.Point(3, 265);
+            this.btnEtiqueta.Location = new System.Drawing.Point(3, 341);
             this.btnEtiqueta.Name = "btnEtiqueta";
-            this.btnEtiqueta.Size = new System.Drawing.Size(61, 53);
+            this.btnEtiqueta.Size = new System.Drawing.Size(53, 53);
             this.btnEtiqueta.TabIndex = 2;
             this.btnEtiqueta.Text = "etoiquetado";
             this.btnEtiqueta.UseVisualStyleBackColor = true;
@@ -127,9 +127,9 @@
             this.button1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button1.BackgroundImage")));
             this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.button1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.button1.Location = new System.Drawing.Point(69, 78);
+            this.button1.Location = new System.Drawing.Point(69, 156);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(63, 51);
+            this.button1.Size = new System.Drawing.Size(54, 51);
             this.button1.TabIndex = 1;
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -140,7 +140,7 @@
             this.btnAbrirRecibos.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnAbrirRecibos.BackgroundImage")));
             this.btnAbrirRecibos.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnAbrirRecibos.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAbrirRecibos.Location = new System.Drawing.Point(2, 78);
+            this.btnAbrirRecibos.Location = new System.Drawing.Point(2, 156);
             this.btnAbrirRecibos.Name = "btnAbrirRecibos";
             this.btnAbrirRecibos.Size = new System.Drawing.Size(54, 51);
             this.btnAbrirRecibos.TabIndex = 0;
@@ -233,7 +233,7 @@
             // 
             this.label21.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(5, 238);
+            this.label21.Location = new System.Drawing.Point(5, 316);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(52, 13);
             this.label21.TabIndex = 101;
@@ -245,7 +245,7 @@
             this.btnRespaldo.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnRespaldo.BackgroundImage")));
             this.btnRespaldo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnRespaldo.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnRespaldo.Location = new System.Drawing.Point(2, 171);
+            this.btnRespaldo.Location = new System.Drawing.Point(2, 249);
             this.btnRespaldo.Name = "btnRespaldo";
             this.btnRespaldo.Size = new System.Drawing.Size(54, 53);
             this.btnRespaldo.TabIndex = 100;
@@ -256,7 +256,7 @@
             // 
             this.label20.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(79, 239);
+            this.label20.Location = new System.Drawing.Point(79, 317);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(44, 13);
             this.label20.TabIndex = 99;
@@ -268,16 +268,16 @@
             this.button5.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button5.BackgroundImage")));
             this.button5.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.button5.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.button5.Location = new System.Drawing.Point(68, 171);
+            this.button5.Location = new System.Drawing.Point(68, 249);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(64, 53);
+            this.button5.Size = new System.Drawing.Size(55, 53);
             this.button5.TabIndex = 98;
             this.button5.UseVisualStyleBackColor = true;
             // 
             // label19
             // 
             this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(76, 139);
+            this.label19.Location = new System.Drawing.Point(76, 217);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(47, 13);
             this.label19.TabIndex = 97;
@@ -286,7 +286,7 @@
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(10, 139);
+            this.label18.Location = new System.Drawing.Point(10, 217);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(46, 13);
             this.label18.TabIndex = 96;
@@ -568,7 +568,7 @@
             this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label15.AutoSize = true;
             this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.Location = new System.Drawing.Point(822, 251);
+            this.label15.Location = new System.Drawing.Point(780, 251);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(0, 13);
             this.label15.TabIndex = 143;
@@ -579,7 +579,7 @@
             this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label14.AutoSize = true;
             this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.Location = new System.Drawing.Point(702, 251);
+            this.label14.Location = new System.Drawing.Point(676, 251);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(62, 13);
             this.label14.TabIndex = 142;
@@ -635,7 +635,7 @@
             this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView2.Location = new System.Drawing.Point(679, 49);
             this.dataGridView2.Name = "dataGridView2";
-            this.dataGridView2.Size = new System.Drawing.Size(205, 189);
+            this.dataGridView2.Size = new System.Drawing.Size(205, 179);
             this.dataGridView2.TabIndex = 137;
             this.dataGridView2.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView2_CellContentClick);
             // 
@@ -645,7 +645,7 @@
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Location = new System.Drawing.Point(411, 49);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(199, 215);
+            this.dataGridView1.Size = new System.Drawing.Size(199, 179);
             this.dataGridView1.TabIndex = 136;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
@@ -707,14 +707,14 @@
             this.colPaga,
             this.ColAnalisis,
             this.ColCosto});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvPacientes.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvPacientes.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgvPacientes.Location = new System.Drawing.Point(146, 375);
             this.dgvPacientes.Name = "dgvPacientes";
             this.dgvPacientes.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
@@ -723,10 +723,12 @@
             this.dgvPacientes.TabIndex = 98;
             this.dgvPacientes.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvPacientes_CellContentClick_2);
             this.dgvPacientes.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvPacientes_CellDoubleClick_1);
+            this.dgvPacientes.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.dgvPacientes_DataBindingComplete_1);
             this.dgvPacientes.RowHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvPacientes_RowHeaderMouseClick);
             // 
             // ColFOLIO
             // 
+            this.ColFOLIO.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.ColFOLIO.HeaderText = "FOLIO";
             this.ColFOLIO.Name = "ColFOLIO";
             // 
@@ -777,6 +779,7 @@
             // 
             // ColAnalisis
             // 
+            this.ColAnalisis.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.ColAnalisis.HeaderText = "ANALISIS SOLICITADOS";
             this.ColAnalisis.Name = "ColAnalisis";
             // 
@@ -867,6 +870,10 @@
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TextBox txtQuienPaga;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button btnRespaldo;
+        private System.Windows.Forms.Label label21;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColFOLIO;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColNombre;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColFECHA;
@@ -879,10 +886,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colPaga;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColAnalisis;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColCosto;
-        private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button btnRespaldo;
-        private System.Windows.Forms.Label label21;
     }
 }
 

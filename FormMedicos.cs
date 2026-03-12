@@ -33,7 +33,6 @@ namespace Sistema_Clinica
         {
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
-                // Si la cantidad de esta fila es igual al máximo, la pintamos
                 if (Convert.ToInt32(row.Cells["Total Pacientes"].Value) == maxPacientes)
                 {
                     row.DefaultCellStyle.BackColor = Color.Gold;

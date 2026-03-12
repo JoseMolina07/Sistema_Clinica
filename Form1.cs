@@ -1039,5 +1039,26 @@ namespace Sistema_Clinica
                 nuevoRespaldo.Show();
             }
         }
+
+        private void dgvPacientes_DataBindingComplete_1(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // 1. Primero, limpiamos configuraciones previas que bloquean el tamaño
+            foreach (DataGridViewColumn col in dgvPacientes.Columns)
+            {
+                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            }
+
+            // 2. Le damos un tamaño fijo a las columnas pequeñas (esto evita que el Fill se vuelva loco)
+            // Cambia "ColFolio" por el nombre exacto de tus columnas
+            if (dgvPacientes.Columns.Contains("ColFOLIO")) dgvPacientes.Columns["ColFOLIO"].Width = 80;
+            if (dgvPacientes.Columns.Contains("ColNombre")) dgvPacientes.Columns["ColNombre"].Width = 150;
+
+            // 3. LA CLAVE: Aquí expandimos la columna de Análisis para que tome TODO el espacio restante
+            // ¡Asegúrate de que el nombre sea exactamente el que tienes en el diseñador!
+            if (dgvPacientes.Columns.Contains("ColAnalisis"))
+            {
+                dgvPacientes.Columns["ColAnalisis"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
+        }
     }
 }

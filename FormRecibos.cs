@@ -652,5 +652,17 @@ namespace Sistema_Clinica
             GuardarPdfDirecto();
             MessageBox.Show("PDF generado correctamente en Descargas.");
         }
+        private string rutaArchivoSeleccionado = "";
+        private void button2_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Todos los archivos (*.*)|*.*|Archivos SQL (*.sql)|*.sql";
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                rutaArchivoSeleccionado = ofd.FileName;
+                MessageBox.Show("Archivo cargado: " + Path.GetFileName(rutaArchivoSeleccionado));
+            }
+        }
     }
 }

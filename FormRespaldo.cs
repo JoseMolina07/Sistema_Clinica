@@ -1,9 +1,11 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ namespace Sistema_Clinica
 {
     public partial class FormRespaldo : Form
     {
+        string carpetaDescargas = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
         public FormRespaldo()
         {
             InitializeComponent();
@@ -20,72 +23,36 @@ namespace Sistema_Clinica
 
         private void btnRespaldar_Click(object sender, EventArgs e)
         {
-            // 1. Elegir ruta donde guardar
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "Archivo SQL (*.sql)|*.sql";
-            sfd.FileName = $"Respaldo_Clinica_{DateTime.Now:yyyyMMdd_HHmmss}.sql";
+            string nombreArchivo = $"Respaldo_{DateTime.Now:yyyyMMdd_HHmmss}.sql";
+            string rutaCompleta = Path.Combine(carpetaDescargas, nombreArchivo);
 
-            if (sfd.ShowDialog() == DialogResult.OK)
+            string mysqldumpPath = @"C:\xampp\mysql\bin\mysqldump.exe";
+
+            try
             {
-                string rutaCompleta = sfd.FileName;
-
-                // 2. Configuración de XAMPP (Asegúrate de que esta ruta sea real)
-                string mysqldumpPath = @"C:\xampp\mysql\bin\mysqldump.exe";
-                string dbName = "db_laboratorio_pio";
-                string dbUser = "root";
-
-                // 3. Ejecución segura
-                try
+                // El comando de respaldo
+                ProcessStartInfo psi = new ProcessStartInfo(mysqldumpPath, $"-u root \"db_laboratorio_pio\" -r \"{rutaCompleta}\"")
                 {
-                    this.Cursor = Cursors.WaitCursor;
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
 
-                    ProcessStartInfo psi = new ProcessStartInfo();
-                    psi.FileName = mysqldumpPath;
-
-                    // IMPORTANTE: Si NO tienes contraseña en XAMPP, no incluyas -p.
-                    // Si el comando te da error de "Access denied", entonces usa: $"-u{dbUser} -p \"{dbName}\"..."
-                    psi.Arguments = $"-u{dbUser} \"{dbName}\" -r \"{rutaCompleta}\"";
-
-                    psi.UseShellExecute = false;
-                    psi.CreateNoWindow = true;
-
-                    using (Process proc = Process.Start(psi))
+                using (Process proc = Process.Start(psi))
+                {
+                    if (proc.WaitForExit(15000) && proc.ExitCode == 0)
                     {
-                        // Espera máxima de 15 segundos para evitar que se congele
-                        if (proc.WaitForExit(15000))
-                        {
-                            if (proc.ExitCode == 0)
-                            {
-                                // Agregar al DataGridView
-                                dgvRespaldos.Rows.Add(DateTime.Now.ToString("dd/MM/yyyy"),
-                                                     DateTime.Now.ToString("HH:mm:ss"),
-                                                     "N/A",
-                                                     rutaCompleta);
-
-                                MessageBox.Show("Respaldo completado con éxito.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            }
-                            else
-                            {
-                                MessageBox.Show("Error al respaldar. El proceso terminó con código: " + proc.ExitCode);
-                            }
-                        }
-                        else
-                        {
-                            proc.Kill(); // Mata el proceso si se quedó bloqueado
-                            MessageBox.Show("El respaldo tomó demasiado tiempo y fue cancelado.");
-                        }
+                        CargarHistorial(); // Refrescamos la lista automáticamente
+                        MessageBox.Show("Respaldo guardado con éxito en Descargas.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error al respaldar. Verifica que XAMPP esté iniciado.");
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error crítico: " + ex.Message);
-                }
-                finally
-                {
-                    this.Cursor = Cursors.Default;
-                }
             }
+            catch (Exception ex) { MessageBox.Show("Error crítico: " + ex.Message); }
         }
+ 
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -106,7 +73,54 @@ namespace Sistema_Clinica
 
         private void FormRespaldo_Load(object sender, EventArgs e)
         {
+            CargarHistorial();
+        }
 
+        private void CargarHistorial()
+        {
+            dgvRespaldos.Rows.Clear();
+            try
+            {
+                DirectoryInfo info = new DirectoryInfo(carpetaDescargas);
+                // Filtramos solo los archivos que empiezan con "Respaldo_"
+                FileInfo[] archivos = info.GetFiles("Respaldo_*.sql");
+
+                // Ordenamos del más nuevo al más viejo
+                foreach (FileInfo archivo in archivos.OrderByDescending(f => f.CreationTime))
+                {
+                    dgvRespaldos.Rows.Add(
+                        archivo.CreationTime.ToString("dd/MM/yyyy"),
+                        archivo.CreationTime.ToString("HH:mm:ss"),
+                        "Admin",
+                        archivo.Name
+                    );
+                }
+            }
+            catch (Exception ex) { MessageBox.Show("Error al cargar historial: " + ex.Message); }
+        }
+        private void dgvRespaldos_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnConecNube_Click(object sender, EventArgs e)
+        {
+            // Esta es la URL de Google Drive (donde se suben los respaldos)
+            // También puedes usar: "https://console.cloud.google.com/"
+            string urlGoogleDrive = "https://drive.google.com/drive/my-drive";
+            try
+            {
+                Process.Start(new ProcessStartInfo(urlGoogleDrive) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("No se pudo abrir el navegador: " + ex.Message);
+            }
         }
     }
 }
